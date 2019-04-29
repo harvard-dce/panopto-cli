@@ -1,5 +1,3 @@
 zeep
 requests
 click
-python-dotenv
-arrow
