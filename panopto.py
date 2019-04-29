@@ -1,44 +1,69 @@
 #!/usr/bin/env python3
 
+import os
 import json
 import click
-import arrow
-from pprint import pprint
 from requests import Session
-from dotenv import load_dotenv
 from zeep import Transport, Client
 from zeep.helpers import serialize_object
+from datetime import datetime
+from functools import singledispatch
 
 # supress warnings about forced https
 import logging
 logging.getLogger("zeep.wsdl.bindings.soap").setLevel(logging.ERROR)
 
-load_dotenv()
-
 AUTH_URL = 'https://{host}/Panopto/PublicAPI/4.2/Auth.svc'
 AUTH_BINDING = '{http://tempuri.org/}BasicHttpBinding_IAuth'
+
+
+def load_config():
+    config_file = os.path.expanduser('~/.panopto-cli')
+    if os.path.exists(config_file):
+        with open(config_file) as f:
+            config = json.load(f)
+        return config
+    return {}
+
+
+# handle serializing datetimes in json
+@singledispatch
+def to_serializable(val):
+    return str(val)
+
+@to_serializable.register(datetime)
+def ts_datetime(val):
+    return val.isoformat() + "Z"
+
 
 class PanoptoAPI(object):
 
     def __init__(self, user, password, host):
 
-        transport = Transport(session=Session())
-        auth_wsdl = "https://{}/Panopto/PublicAPI/4.2/Auth.svc".format(host)
+        self.user = user
+        self.password = password
+        self.host = host
+        self.clients = {}
+
+    def get_client(self, endpoint):
+
+        if endpoint not in self.clients:
+            wsdl = "https://{}/Panopto/PublicAPI/{}/{}.svc?singleWsdl".format(
+                self.host, ENDPOINTS[endpoint], endpoint
+            )
+            transport = Transport(session=Session())
+            self.clients[endpoint] = Client(wsdl, transport=transport, service_name=endpoint)
+
+        return self.clients[endpoint]
+
+    def auth_transport(self, transport):
+
+        auth_wsdl = "https://{}/Panopto/PublicAPI/4.2/Auth.svc".format(self.host)
         auth_client = Client(auth_wsdl + "?singleWsdl", transport=transport)
         auth_service = auth_client.create_service(
             binding_name=AUTH_BINDING, address=auth_wsdl)
         with auth_client.settings(raw_response=True):
-            resp = auth_service.LogOnWithPassword(user, password)
-
-        self.transport = transport
-        self.host = host
-
-    def get_client(self, endpoint):
-
-        wsdl = "https://{}/Panopto/PublicAPI/{}/{}.svc?singleWsdl".format(
-            self.host, ENDPOINTS[endpoint], endpoint
-        )
-        return Client(wsdl, transport=self.transport, service_name=endpoint)
+            resp = auth_service.LogOnWithPassword(self.user, self.password)
 
 
 class EndpointGroup(click.Group):
@@ -68,6 +93,9 @@ class EndpointGroup(click.Group):
         @click.pass_context
         def _cmd(ctx, *args, **kwargs):
 
+            # set the auth cookie for our client transport
+            ctx.obj.auth_transport(client.transport)
+
             # click nicely lowercases all our option names, so we have
             # to re-camelcase them here
             camel_case_params = {}
@@ -76,9 +104,8 @@ class EndpointGroup(click.Group):
 
             op = getattr(client.service, cmd_name)
             res = op(**camel_case_params)
-            #print(json.dumps(res, indent=True))
             res = serialize_object(res)
-            print(res)
+            print(json.dumps(res, indent=True, default=to_serializable))
 
         for option in options.values():
             _cmd = option(_cmd)
@@ -109,11 +136,17 @@ class EndpointGroup(click.Group):
 
 
 @click.group()
-@click.option('--user', envvar="PANOPTO_USER")
-@click.option('--password', envvar="PANOPTO_PASSWORD")
-@click.option('--host', envvar="PANOPTO_HOST")
+@click.option('--user')
+@click.option('--password')
+@click.option('--host')
 @click.pass_context
 def cli(ctx, user, password, host):
+    config = load_config()
+    user = user or config.get('user')
+    password = password or config.get('password')
+    host = host or config.get('host')
+    if any(x is None for x in (host, user, password)):
+        ctx.fail("Missing configuration: host, user or password is missing")
     ctx.obj = PanoptoAPI(user, password, host)
     return
 
