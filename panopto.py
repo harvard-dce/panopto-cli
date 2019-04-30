@@ -83,11 +83,7 @@ class EndpointGroup(click.Group):
         except KeyError as e:
             ctx.fail('command {} not found: {}'.format(cmd_name, e))
 
-        options = {
-            name: self.generate_option(x)
-            for name, x in operation.input.body.type.elements
-            if name != "auth" # auth is handled by the transport
-        }
+        options = self.generate_options(operation)
 
         @ctx.command.command(name=cmd_name)
         @click.pass_context
@@ -99,8 +95,13 @@ class EndpointGroup(click.Group):
             # click nicely lowercases all our option names, so we have
             # to re-camelcase them here
             camel_case_params = {}
-            for param_name in options.keys():
-                camel_case_params[param_name] = kwargs[param_name.lower()]
+            for param_name, option in options.items():
+                if isinstance(option, dict):
+                    camel_case_params[param_name] = {
+                        x: kwargs[x.lower()] for x in option.keys()
+                    }
+                else:
+                    camel_case_params[param_name] = kwargs[param_name.lower()]
 
             op = getattr(client.service, cmd_name)
             res = op(**camel_case_params)
@@ -108,7 +109,11 @@ class EndpointGroup(click.Group):
             print(json.dumps(res, indent=True, default=to_serializable))
 
         for option in options.values():
-            _cmd = option(_cmd)
+            if isinstance(option, dict):
+                for sub_option in option.values():
+                    _cmd = sub_option(_cmd)
+            else:
+                _cmd = option(_cmd)
 
         return _cmd
 
@@ -123,16 +128,32 @@ class EndpointGroup(click.Group):
         return commands
 
 
-    def generate_option(self, element):
+    def generate_options(self, operation):
 
-        param_decls = "--{}".format(element.name)
-        if element.type.name == "dateTime":
-            option_type = click.DateTime()
-        else:
-            option_type = str
-        option = click.option(param_decls, type=option_type)
+        options = {}
 
-        return option
+        for name, elem in operation.input.body.type.elements:
+            if name == "auth": continue
+
+            if elem.type.name == "dateTime":
+                options[name] = self.make_option(name, click.DateTime())
+            elif name == "pagination":
+                options["pagination"] = {
+                    "PageNumber": self.make_option("PageNumber", int,
+                                                   default=1),
+                    "MaxNumberResults": self.make_option("MaxNumberResults",
+                                                         int, default=10)
+                }
+            else:
+                options[name] = self.make_option(name, str)
+
+        return options
+
+    def make_option(self, name, option_type, **kwargs):
+        param_decls = "--{}".format(name)
+        return click.option(param_decls, type=option_type, **kwargs)
+
+
 
 
 @click.group()
