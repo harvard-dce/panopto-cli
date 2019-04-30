@@ -104,7 +104,11 @@ class EndpointGroup(click.Group):
                     camel_case_params[param_name] = kwargs[param_name.lower()]
 
             op = getattr(client.service, cmd_name)
-            res = op(**camel_case_params)
+            try:
+                res = op(**camel_case_params)
+            except Exception as e:
+                print(e)
+                ctx.exit(1)
             res = serialize_object(res)
             print(json.dumps(res, indent=True, default=to_serializable))
 
