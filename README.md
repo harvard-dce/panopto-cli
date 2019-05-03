@@ -139,3 +139,9 @@ Server returned HTTP status 204 (no content available)
 * `https://[your host]/Panopto/PublicAPI/4.6/SessionManagement.svc?singleWsdl`
 * `https://[your host]/Panopto/PublicAPI/4.0/UsageReporting.svc?singleWsdl`
 * `https://[your host]/Panopto/PublicAPI/4.0/UserManagement.svc?singleWsdl`
+
+## Contributors
+
+* Jay Luker - [lbjay](https://github.com/lbjay)
+* Anshi Moreno Jimenez - [amorenojimenez1](https://github.com/amorenojimenez1)
+
