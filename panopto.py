@@ -7,7 +7,7 @@ from requests import Session
 from zeep import Transport, Client
 from zeep.helpers import serialize_object
 from datetime import datetime
-from functools import singledispatch
+from functools import singledispatch, wraps
 
 # supress warnings about forced https
 import logging
@@ -63,7 +63,7 @@ class PanoptoAPI(object):
         auth_service = auth_client.create_service(
             binding_name=AUTH_BINDING, address=auth_wsdl)
         with auth_client.settings(raw_response=True):
-            resp = auth_service.LogOnWithPassword(self.user, self.password)
+            auth_service.LogOnWithPassword(self.user, self.password)
 
 
 class EndpointGroup(click.Group):
@@ -83,7 +83,7 @@ class EndpointGroup(click.Group):
         except KeyError as e:
             ctx.fail('command {} not found: {}'.format(cmd_name, e))
 
-        options = self.generate_options(operation)
+        options = generate_options(operation.input.body.type.elements)
 
         @ctx.command.command(name=cmd_name)
         @click.pass_context
@@ -94,31 +94,18 @@ class EndpointGroup(click.Group):
 
             # click nicely lowercases all our option names, so we have
             # to re-camelcase them here
-            camel_case_params = {}
-            for param_name, option in options.items():
-                if isinstance(option, dict):
-                    camel_case_params[param_name] = {
-                        x: kwargs[x.lower()] for x in option.keys()
-                    }
-                else:
-                    camel_case_params[param_name] = kwargs[param_name.lower()]
+            op_params = camelcase_params(options, kwargs)
 
             op = getattr(client.service, cmd_name)
             try:
-                res = op(**camel_case_params)
+                res = op(**op_params)
             except Exception as e:
                 print(e)
                 ctx.exit(1)
             res = serialize_object(res)
             print(json.dumps(res, indent=True, default=to_serializable))
 
-        for option in options.values():
-            if isinstance(option, dict):
-                for sub_option in option.values():
-                    _cmd = sub_option(_cmd)
-            else:
-                _cmd = option(_cmd)
-
+        apply_generated_options(_cmd, options)
         return _cmd
 
     def list_commands(self, ctx):
@@ -132,32 +119,43 @@ class EndpointGroup(click.Group):
         return commands
 
 
-    def generate_options(self, operation):
-
-        options = {}
-
-        for name, elem in operation.input.body.type.elements:
-            if name == "auth": continue
-
-            if elem.type.name == "dateTime":
-                options[name] = self.make_option(name, click.DateTime())
-            elif name == "pagination":
-                options["pagination"] = {
-                    "PageNumber": self.make_option("PageNumber", int,
-                                                   default=1),
-                    "MaxNumberResults": self.make_option("MaxNumberResults",
-                                                         int, default=10)
-                }
-            else:
-                options[name] = self.make_option(name, str)
-
-        return options
-
-    def make_option(self, name, option_type, **kwargs):
-        param_decls = "--{}".format(name)
-        return click.option(param_decls, type=option_type, **kwargs)
+def generate_options(elements):
+    options = {}
+    for name, elem in elements:
+        if name == "auth": # auth is handled by client instantiation
+            continue
+        if elem.type._element is not None:
+            options[name] = generate_options(elem.type._element.elements)
+        elif elem.type.name == "dateTime":
+            options[name] = make_option(name, click.DateTime())
+        elif elem.type.name == 'int':
+            options[name] = make_option(name, int)
+        else:
+            options[name] = make_option(name, str)
+    return options
 
 
+def make_option(name, option_type, **kwargs):
+    param_decls = "--{}".format(name)
+    return click.option(param_decls, type=option_type, **kwargs)
+
+
+def camelcase_params(options, command_kwargs):
+    params = {}
+    for param_name, option in options.items():
+        if isinstance(option, dict):
+            params[param_name] = camelcase_params(option, command_kwargs)
+        else:
+            params[param_name] = command_kwargs[param_name.lower()]
+    return params
+
+
+def apply_generated_options(cmd, options):
+    for _, option in options.items():
+        if isinstance(option, dict):
+            apply_generated_options(cmd, option)
+        else:
+            cmd = option(cmd)
 
 
 @click.group()
