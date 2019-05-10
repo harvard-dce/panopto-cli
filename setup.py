@@ -8,7 +8,7 @@ install_requires = [
 
 setup(
     name="panopto-cli",
-    version="0.1.0",
+    version="0.2.0",
     py_modules=['panopto'],
     install_requires=install_requires,
     licence='Apache 2.0',
