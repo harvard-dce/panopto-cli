@@ -4,7 +4,7 @@ import os
 import json
 import click
 from requests import Session
-from zeep import Transport, Client
+from zeep import Transport, Client, Settings
 from zeep.helpers import serialize_object
 from datetime import datetime
 from functools import singledispatch, wraps
@@ -52,7 +52,12 @@ class PanoptoAPI(object):
                 self.host, ENDPOINTS[endpoint], endpoint
             )
             transport = Transport(session=Session())
-            self.clients[endpoint] = Client(wsdl, transport=transport, service_name=endpoint)
+            settings = Settings(strict=False)
+            self.clients[endpoint] = Client(wsdl,
+                                            transport=transport,
+                                            service_name=endpoint,
+                                            settings=settings
+                                            )
 
         return self.clients[endpoint]
 
@@ -122,16 +127,35 @@ class EndpointGroup(click.Group):
 def generate_options(elements):
     options = {}
     for name, elem in elements:
+
         if name == "auth": # auth is handled by client instantiation
             continue
+
+        type_name = elem.type.name
+        make_option_kwargs = {}
+
         if elem.type._element is not None:
-            options[name] = generate_options(elem.type._element.elements)
-        elif elem.type.name == "dateTime":
-            options[name] = make_option(name, click.DateTime())
-        elif elem.type.name == 'int':
-            options[name] = make_option(name, int)
+            if type_name.startswith('ArrayOf'):
+                make_option_kwargs["multiple"] = True
+                make_option_kwargs["help"] = "allows multiple"
+            else:
+                options[name] = generate_options(elem.type._element.elements)
+                continue
+
+        if type_name in OPTION_CHOICES:
+            choice = click.Choice(OPTION_CHOICES[type_name])
+            options[name] = make_option(name, choice, **make_option_kwargs)
+        elif type_name == "dateTime":
+            options[name] = make_option(name, click.DateTime(), **make_option_kwargs)
+        elif type_name == 'int':
+            options[name] = make_option(name, click.INT, **make_option_kwargs)
+        elif type_name == 'double':
+            options[name] = make_option(name, click.FLOAT, **make_option_kwargs)
+        elif type_name == 'boolean':
+            make_option_kwargs["help"] = "true|false"
+            options[name] = make_option(name, click.BOOL, **make_option_kwargs)
         else:
-            options[name] = make_option(name, str)
+            options[name] = make_option(name, click.STRING, **make_option_kwargs)
     return options
 
 
@@ -181,6 +205,88 @@ ENDPOINTS = {
     'UsageReporting': '4.0',
     'UserManagement': '4.0'
 }
+
+OPTION_CHOICES = {
+    'UsageGranularity': [
+        'Hourly',
+        'Daily',
+        'Weekly'
+    ],
+    'StatsReportType': [
+        'FolderUsage',
+        'SessionUsage',
+        'UserViewingUsage',
+        'UserCreationUsage',
+        'LastLoginTime',
+        'SessionsViewsByUsers',
+        'SessionsViewsByViewingType',
+        'SessionsCreatedOrEdited',
+        'RemoteRecorderUsage',
+        'SystemViews',
+    ],
+    'AccessRole': [
+        'Creator',
+        'Viewer',
+        'ViewerWithLink',
+        'Publisher'
+    ],
+    'SystemRole': [
+        'None',
+        'Videographer',
+        'Admin'
+    ],
+    'RecorderSortField': [
+        'Name',
+        'State'
+    ],
+    'ArrayOfDayOfWeek': [
+        'Sunday',
+        'Monday',
+        'Tuesday',
+        'Wednesday',
+        'Thursday',
+        'Friday',
+        'Saturday'
+    ],
+    'SessionSortField': [
+        'Name',
+        'Date',
+        'Duration',
+        'State',
+        'Relevance',
+        'Order'
+    ],
+    'FolderSortField': [
+        'Name',
+        'Sessions',
+        'Relavance'
+    ],
+    'UserSortField': [
+        'UserKey',
+        'Role',
+        'Added',
+        'LastLogOn',
+        'Email',
+        'FullName'
+    ],
+    'FolderStartSettingType': [
+        'Immediately',
+        'WhenPublisherApproved',
+        'NeverUnlessSessionSet',
+        'SpecificDate'
+    ],
+    'SessionStartSettingType': [
+        'Immediately',
+        'WithItsFolder',
+        'SpecificDate'
+    ],
+    'SessionEndSettingType': [
+        'Forever',
+        'WithItsFolder',
+        'SpecificDate'
+    ]
+}
+
 
 for name, ver in ENDPOINTS.items():
 
