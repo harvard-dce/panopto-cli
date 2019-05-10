@@ -82,6 +82,13 @@ Options:
 There are currently some limitations to the introspection. For instance, the above `--help` output won't show you the allowed values for `--granularity` (they're "Hourly", "Daily" and "Weekly", fwiw). So in some cases you'll need to refer directly to the wsdl xml. It might be possible to inlcude this kind of detail in a future release.
 
 
+##### Problem commands
+
+* `RemoteRecorderManagement ScheduleRecording` - the `--recorderSettings` option is both comlex and allows multiple and the cli can't currently handle that.
+* `UsageReporting GetReport` - the response is in the form of a downloadable zip file and zeep doesn't know what to do with it``
+* `SessionManagement UploadTranscript` - takes a file path as an argument and I haven't figure out how to attach files
+
+
 ##### Report generation example
 
 ```bash
