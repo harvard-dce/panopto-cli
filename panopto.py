@@ -7,6 +7,7 @@ from requests import Session
 from zeep import Transport, Client, Settings
 from zeep.helpers import serialize_object
 from datetime import datetime
+from subprocess import run
 from functools import singledispatch, wraps
 
 # supress warnings about forced https
@@ -294,6 +295,56 @@ for name, ver in ENDPOINTS.items():
     @click.pass_context
     def _subgroup(ctx):
         pass
+
+
+@cli.command(hidden=True)
+@click.pass_context
+def generate_usage(ctx):
+
+    content = ""
+    toc = ""
+
+    cmd = create_usage_command([])
+    res = run(cmd, capture_output=True)
+    content += get_usage('', 2, res.stdout.decode())
+
+    for command_group, command in cli.commands.items():
+        if command_group == 'generate-usage':
+            continue
+        cmd = create_usage_command([command_group])
+        res = run(cmd, capture_output=True)
+        content += get_usage(command_group, 3, res.stdout.decode())
+        toc += create_toc_entry([command_group])
+
+        client = ctx.obj.get_client(command_group)
+        service = client.wsdl.services[command_group]
+        port = service.ports["BasicHttpBinding_I" + command_group]
+        for op_name in port.binding._operations.keys():
+            cmd = create_usage_command([command_group, op_name])
+            res = run(cmd, capture_output=True)
+            content += get_usage(" ".join((command_group, op_name)), 5, res.stdout.decode())
+            toc += create_toc_entry([command_group, op_name], subcommand=True)
+
+    print(toc + "\n\n")
+    print(content)
+
+def create_usage_command(commands):
+    return ["python", __file__] + commands + ["--help"]
+
+def create_toc_entry(commands, subcommand=False):
+    return "{}* [{}](#panopto-{})\n".format(
+        subcommand and "\t" or "",
+        subcommand and commands[1] or " ".join(commands),
+        "-".join(commands)
+    )
+
+def get_usage(header, header_size, usage):
+    return """
+{} panopto {}
+```
+{}
+```
+""".format("#" * header_size, header, usage)
 
 
 if __name__ == '__main__':
