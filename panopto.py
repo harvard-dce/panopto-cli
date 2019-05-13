@@ -6,6 +6,7 @@ import click
 from requests import Session
 from zeep import Transport, Client, Settings
 from zeep.helpers import serialize_object
+from zeep.cache import SqliteCache
 from datetime import datetime
 from subprocess import run
 from functools import singledispatch, wraps
@@ -52,7 +53,7 @@ class PanoptoAPI(object):
             wsdl = "https://{}/Panopto/PublicAPI/{}/{}.svc?singleWsdl".format(
                 self.host, ENDPOINTS[endpoint], endpoint
             )
-            transport = Transport(session=Session())
+            transport = Transport(session=Session(), cache=SqliteCache())
             settings = Settings(strict=False)
             self.clients[endpoint] = Client(wsdl,
                                             transport=transport,

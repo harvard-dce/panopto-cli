@@ -1,5 +1,9 @@
 # CHANGELOG
 
+## 0.4.0 - 05/13/2019
+
+* Use a zeep caching transport
+
 ## 0.3.0 - 05/10/2019
 
 * Handle additional option types, including those with an enum of restricted,
