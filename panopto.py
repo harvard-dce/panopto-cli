@@ -99,6 +99,12 @@ class EndpointGroup(click.Group):
             # set the auth cookie for our client transport
             ctx.obj.auth_transport(client.transport)
 
+            # click turns args set to allow multiple values into tuples
+            # but zeep doesn't handle tuple values, so we convert to a list
+            for k, v in kwargs.items():
+                if isinstance(v, tuple):
+                    kwargs[k] = list(v)
+
             # click nicely lowercases all our option names, so we have
             # to re-camelcase them here
             op_params = camelcase_params(options, kwargs)
