@@ -90,7 +90,7 @@ class EndpointGroup(click.Group):
         except KeyError as e:
             ctx.fail('command {} not found: {}'.format(cmd_name, e))
 
-        options = generate_options(operation.input.body.type.elements)
+        options = generate_options(operation)
 
         @ctx.command.command(name=cmd_name)
         @click.pass_context
@@ -98,12 +98,6 @@ class EndpointGroup(click.Group):
 
             # set the auth cookie for our client transport
             ctx.obj.auth_transport(client.transport)
-
-            # click turns args set to allow multiple values into tuples
-            # but zeep doesn't handle tuple values, so we convert to a list
-            for k, v in kwargs.items():
-                if isinstance(v, tuple):
-                    kwargs[k] = list(v)
 
             # click nicely lowercases all our option names, so we have
             # to re-camelcase them here
@@ -132,44 +126,97 @@ class EndpointGroup(click.Group):
         return commands
 
 
-def generate_options(elements):
+def generate_options(operation):
+
+    wsdl_types = { x.name: x for x in list(operation.input.wsdl.types.types) }
+    operation_elements = operation.input.body.type.elements
+
     options = {}
-    for name, elem in elements:
+    for name, elem in operation_elements:
 
         if name == "auth": # auth is handled by client instantiation
             continue
 
-        type_name = elem.type.name
         make_option_kwargs = {}
+        wsdl_type = wsdl_types.get(elem.type.name)
+        option_type = get_click_option_type(wsdl_type.name)
+        option_callback = create_option_callback(wsdl_type)
 
-        if elem.type._element is not None:
-            if type_name.startswith('ArrayOf'):
-                make_option_kwargs["multiple"] = True
-                make_option_kwargs["help"] = "allows multiple"
-            else:
-                options[name] = generate_options(elem.type._element.elements)
-                continue
-
-        if type_name in OPTION_CHOICES:
-            choice = click.Choice(OPTION_CHOICES[type_name])
-            options[name] = make_option(name, choice, **make_option_kwargs)
-        elif type_name == "dateTime":
-            options[name] = make_option(name, click.DateTime(), **make_option_kwargs)
-        elif type_name == 'int':
-            options[name] = make_option(name, click.INT, **make_option_kwargs)
-        elif type_name == 'double':
-            options[name] = make_option(name, click.FLOAT, **make_option_kwargs)
-        elif type_name == 'boolean':
-            make_option_kwargs["help"] = "true|false"
-            options[name] = make_option(name, click.BOOL, **make_option_kwargs)
+        if wsdl_type.name.startswith('ArrayOf'):
+            item_type_name = wsdl_type.name.replace('ArrayOf', '')
+            item_type = wsdl_types[item_type_name]
+            make_option_kwargs["help"] = generate_option_help(item_type, multiple=True)
+            make_option_kwargs["multiple"] = True
         else:
-            options[name] = make_option(name, click.STRING, **make_option_kwargs)
+            make_option_kwargs["help"] = generate_option_help(wsdl_type)
+
+        options[name] = make_option(
+            name,
+            option_type,
+            callback=option_callback,
+            **make_option_kwargs
+        )
+
     return options
 
 
-def make_option(name, option_type, **kwargs):
+def generate_option_help(wsdl_type, multiple=False):
+    help_text = []
+    if wsdl_type.name == 'boolean':
+        help_text.append("true|false")
+    if multiple:
+        help_text.append("allows multiple")
+    if hasattr(wsdl_type, 'elements'):
+        element_names = [x[0] for x in wsdl_type.elements]
+        help_text.append("format: " + ",".join(element_names))
+    return ";\n".join(help_text)
+
+
+def parse_complex_type(value):
+    if "=" not in value:
+        # not a complex value
+        return value
+    pairs = value.split(',')
+    as_dict = dict(x.split('=') for x in pairs)
+    return as_dict
+
+
+def create_option_callback(wsdl_type):
+    def _callback(ctx, param, value):
+        value_class = getattr(wsdl_type, '_value_class', None)
+        if value_class is not None:
+            if param.multiple:
+                value = [parse_complex_type(x) for x in value]
+            else:
+                value = parse_complex_type(value)
+            return value_class(value)
+        else:
+            return value
+    return _callback
+
+
+def get_click_option_type(type_name):
+    if type_name == 'string':
+        return click.STRING
+    elif type_name == 'boolean':
+        return click.BOOL
+    elif type_name == 'double':
+        return click.FLOAT
+    elif type_name == 'int':
+        return click.INT
+    elif type_name == 'dateTime':
+        return click.DateTime()
+    return click.STRING
+
+
+def make_option(name, option_type, callback, **kwargs):
     param_decls = "--{}".format(name)
-    return click.option(param_decls, type=option_type, **kwargs)
+    return click.option(
+        param_decls,
+        type=option_type,
+        callback=callback,
+        **kwargs
+    )
 
 
 def camelcase_params(options, command_kwargs):
