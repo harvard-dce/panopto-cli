@@ -173,7 +173,7 @@ def generate_option_help(wsdl_type, multiple=False):
 
 
 def parse_complex_type(value):
-    if "=" not in value:
+    if value is None or "=" not in value:
         # not a complex value
         return value
     pairs = value.split(',')
@@ -185,11 +185,14 @@ def create_option_callback(wsdl_type):
     def _callback(ctx, param, value):
         value_class = getattr(wsdl_type, '_value_class', None)
         if value_class is not None:
+            if value is None:
+                return ""
             if param.multiple:
                 value = [parse_complex_type(x) for x in value]
+                return value_class(value)
             else:
                 value = parse_complex_type(value)
-            return value_class(value)
+                return value_class(**value)
         else:
             return value
     return _callback
