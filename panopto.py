@@ -17,14 +17,19 @@ logging.getLogger("zeep.wsdl.bindings.soap").setLevel(logging.ERROR)
 
 AUTH_URL = 'https://{host}/Panopto/PublicAPI/4.2/Auth.svc'
 AUTH_BINDING = '{http://tempuri.org/}BasicHttpBinding_IAuth'
-
+CONFIG_PATH = os.path.expanduser('~/.panopto-cli')
 
 def load_config():
-    config_file = os.path.expanduser('~/.panopto-cli')
-    if os.path.exists(config_file):
-        with open(config_file) as f:
-            config = json.load(f)
-        return config
+    if os.path.exists(CONFIG_PATH):
+        try:
+            with open(CONFIG_PATH) as f:
+                config = json.load(f)
+            return config
+        except Exception as e:
+            click.echo(
+                "{} found but unable to read: {}".format(CONFIG_PATH, e),
+                err=True
+            )
     return {}
 
 
@@ -36,7 +41,6 @@ def to_serializable(val):
 @to_serializable.register(datetime)
 def ts_datetime(val):
     return val.isoformat() + "Z"
-
 
 class PanoptoAPI(object):
 
@@ -246,6 +250,8 @@ def apply_generated_options(cmd, options):
 @click.option('--host')
 @click.pass_context
 def cli(ctx, user, password, host):
+    if ctx.invoked_subcommand == 'configure':
+        return
     config = load_config()
     user = user or config.get('user')
     password = password or config.get('password')
@@ -253,8 +259,26 @@ def cli(ctx, user, password, host):
     if any(x is None for x in (host, user, password)):
         ctx.fail("Missing configuration: host, user or password is missing")
     ctx.obj = PanoptoAPI(user, password, host)
-    return
 
+
+@cli.command()
+def configure():
+    host = click.prompt("Panopto host", type=str)
+    user = click.prompt("Username", type=str)
+    password = click.prompt("Password", type=str)
+    config = {
+        "user": user,
+        "password": password,
+        "host": host
+    }
+    click.echo("Write the following to ~/.panopto-cli?\n" + json.dumps(config, indent=2))
+    do_it = click.confirm(" ", default=True)
+    if do_it:
+        with open(CONFIG_PATH, 'w') as f:
+            json.dump(config, f, indent=2)
+        click.echo("done!")
+    else:
+        click.echo("nevermind!")
 
 ENDPOINTS = {
     'AccessManagement': '4.0',
