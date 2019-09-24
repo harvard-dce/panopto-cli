@@ -17,12 +17,11 @@ logging.getLogger("zeep.wsdl.bindings.soap").setLevel(logging.ERROR)
 
 AUTH_URL = 'https://{host}/Panopto/PublicAPI/4.2/Auth.svc'
 AUTH_BINDING = '{http://tempuri.org/}BasicHttpBinding_IAuth'
-
+CONFIG_PATH = os.path.expanduser('~/.panopto-cli')
 
 def load_config():
-    config_file = os.path.expanduser('~/.panopto-cli')
-    if os.path.exists(config_file):
-        with open(config_file) as f:
+    if os.path.exists(CONFIG_PATH):
+        with open(CONFIG_PATH) as f:
             config = json.load(f)
         return config
     return {}
@@ -36,7 +35,6 @@ def to_serializable(val):
 @to_serializable.register(datetime)
 def ts_datetime(val):
     return val.isoformat() + "Z"
-
 
 class PanoptoAPI(object):
 
@@ -246,7 +244,10 @@ def apply_generated_options(cmd, options):
 @click.option('--host')
 @click.pass_context
 def cli(ctx, user, password, host):
-    config = load_config()
+    try:
+        config = load_config()
+    except:
+        pass
     user = user or config.get('user')
     password = password or config.get('password')
     host = host or config.get('host')
@@ -255,6 +256,25 @@ def cli(ctx, user, password, host):
     ctx.obj = PanoptoAPI(user, password, host)
     return
 
+
+@cli.command()
+def configure():
+    host = click.prompt("Panopto host", type=str)
+    user = click.prompt("Username", type=str)
+    password = click.prompt("Password", type=str)
+    config = {
+        "user": user,
+        "password": password,
+        "host": host
+    }
+    click.echo("Write the following to ~/.panopto-cli?\n" + json.dumps(config, indent=2))
+    do_it = click.confirm(" ")
+    if do_it:
+        with open(CONFIG_PATH, 'w') as f:
+            json.dump(config, f, indent=2)
+        click.echo("done!")
+    else:
+        click.echo("nevermind!")
 
 ENDPOINTS = {
     'AccessManagement': '4.0',
