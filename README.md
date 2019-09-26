@@ -26,11 +26,12 @@ Commands:
   SessionManagement
   UsageReporting
   UserManagement
+  configure
 ```
 
 ##### Config file
 
-To avoid entering the user/pass/host options each time, you can create a json config file at `~/.panopto-cli` with the following format:
+To avoid entering the user/pass/host options each time, you can run `panopto configure`. You'll be prompted for a user, password and host value. You can also manually create a json config file at `~/.panopto-cli` with the following format:
 
 ```json
 {
