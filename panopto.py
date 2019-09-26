@@ -3,12 +3,12 @@
 import os
 import json
 import click
+import subprocess
 from requests import Session
 from zeep import Transport, Client, Settings
 from zeep.helpers import serialize_object
 from zeep.cache import SqliteCache
 from datetime import datetime
-from subprocess import run
 from functools import singledispatch, wraps
 
 # supress warnings about forced https
@@ -386,14 +386,14 @@ def generate_usage(ctx):
     toc = ""
 
     cmd = create_usage_command([])
-    res = run(cmd, capture_output=True)
+    res = subprocess.run(cmd, stdout=subprocess.PIPE)
     content += get_usage('', 2, res.stdout.decode())
 
     for command_group, command in cli.commands.items():
-        if command_group == 'generate-usage':
+        if not isinstance(command, EndpointGroup):
             continue
         cmd = create_usage_command([command_group])
-        res = run(cmd, capture_output=True)
+        res = subprocess.run(cmd, stdout=subprocess.PIPE)
         content += get_usage(command_group, 3, res.stdout.decode())
         toc += create_toc_entry([command_group])
 
@@ -402,7 +402,7 @@ def generate_usage(ctx):
         port = service.ports["BasicHttpBinding_I" + command_group]
         for op_name in port.binding._operations.keys():
             cmd = create_usage_command([command_group, op_name])
-            res = run(cmd, capture_output=True)
+            res = subprocess.run(cmd, stdout=subprocess.PIPE)
             content += get_usage(" ".join((command_group, op_name)), 5, res.stdout.decode())
             toc += create_toc_entry([command_group, op_name], subcommand=True)
 
