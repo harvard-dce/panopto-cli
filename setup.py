@@ -11,8 +11,9 @@ setup(
     version="0.7.1",
     py_modules=['panopto'],
     install_requires=install_requires,
-    licence='Apache 2.0',
+    license='Apache 2.0',
     author='Jay Luker',
+    author_email='jay_luker@harvard.edu',
     url='https://github.com/harvard-dce/panopto-cli',
     entry_points='''
         [console_scripts]
