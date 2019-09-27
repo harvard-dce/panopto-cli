@@ -129,7 +129,6 @@ class EndpointGroup(click.Group):
                     commands.append(op.name)
         return commands
 
-
 def generate_options(operation):
 
     wsdl_types = { x.name: x for x in list(operation.input.wsdl.types.types) }
@@ -165,15 +164,18 @@ def generate_options(operation):
 
 
 def generate_option_help(wsdl_type, multiple=False):
-    help_text = []
+    help_text_items = []
     if wsdl_type.name == 'boolean':
-        help_text.append("true|false")
+        help_text_items.append("true|false")
     if multiple:
-        help_text.append("allows multiple")
+        help_text_items.append("allows multiple")
     if hasattr(wsdl_type, 'elements'):
-        element_names = [x[0] for x in wsdl_type.elements]
-        help_text.append("format: " + ",".join(element_names))
-    return ";\n".join(help_text)
+        sub_elements = { x[0]: x[1].type.name for x in wsdl_type.elements }
+        help_text = "format: " + ",".join(
+            "=".join(x) for x in sub_elements.items()
+        )
+        help_text_items.append(help_text)
+    return ";\n".join(help_text_items)
 
 
 def parse_complex_type(value):
@@ -203,6 +205,8 @@ def create_option_callback(wsdl_type):
 
 
 def get_click_option_type(type_name):
+    if type_name in OPTION_CHOICES:
+        return click.Choice(OPTION_CHOICES[type_name])
     if type_name == 'string':
         return click.STRING
     elif type_name == 'boolean':
@@ -410,7 +414,7 @@ def generate_usage(ctx):
     print(content)
 
 def create_usage_command(commands):
-    return ["python", __file__] + commands + ["--help"]
+    return ["./panopto"] + commands + ["--help"]
 
 def create_toc_entry(commands, subcommand=False):
     return "{}* [{}](#panopto-{})\n".format(

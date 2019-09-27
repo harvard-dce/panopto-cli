@@ -89,6 +89,7 @@
 	* [CreateCaptionByRelativeTime](#panopto-SessionManagement-CreateCaptionByRelativeTime)
 	* [CreateCaptionByAbsoluteTime](#panopto-SessionManagement-CreateCaptionByAbsoluteTime)
 	* [UploadTranscript](#panopto-SessionManagement-UploadTranscript)
+	* [ReplaceMachineCaptionsAndUploadTranscript](#panopto-SessionManagement-ReplaceMachineCaptionsAndUploadTranscript)
 	* [GetFoldersAvailabilitySettings](#panopto-SessionManagement-GetFoldersAvailabilitySettings)
 	* [GetSessionsAvailabilitySettings](#panopto-SessionManagement-GetSessionsAvailabilitySettings)
 	* [UpdateFoldersAvailabilityStartSettings](#panopto-SessionManagement-UpdateFoldersAvailabilityStartSettings)
@@ -113,6 +114,10 @@
 	* [GetRecentReports](#panopto-UsageReporting-GetRecentReports)
 	* [QueueReport](#panopto-UsageReporting-QueueReport)
 	* [GetReport](#panopto-UsageReporting-GetReport)
+	* [CancelReport](#panopto-UsageReporting-CancelReport)
+	* [CreateRecurringReport](#panopto-UsageReporting-CreateRecurringReport)
+	* [DeleteRecurringReport](#panopto-UsageReporting-DeleteRecurringReport)
+	* [GetRecurringReports](#panopto-UsageReporting-GetRecurringReports)
 * [UserManagement](#panopto-UserManagement)
 	* [CreateUser](#panopto-UserManagement-CreateUser)
 	* [CreateUsers](#panopto-UserManagement-CreateUsers)
@@ -147,7 +152,7 @@
 
 ## panopto 
 ```
-Usage: panopto.py [OPTIONS] COMMAND [ARGS]...
+Usage: panopto [OPTIONS] COMMAND [ARGS]...
 
 Options:
   --user TEXT
@@ -161,12 +166,13 @@ Commands:
   SessionManagement
   UsageReporting
   UserManagement
+  configure
 
 ```
 
 ### panopto AccessManagement
 ```
-Usage: panopto.py AccessManagement [OPTIONS] COMMAND [ARGS]...
+Usage: panopto AccessManagement [OPTIONS] COMMAND [ARGS]...
 
 Options:
   --help  Show this message and exit.
@@ -194,12 +200,34 @@ Commands:
   RevokeUsersViewerAccessFromSession
   RevokeGroupAccessFromFolder
   RevokeGroupViewerAccessFromSession
+  GetUserAccessDetails
+  GetSelfUserAccessDetails
+  GetSessionAccessDetails
+  GetFolderAccessDetails
+  GetGroupAccessDetails
+  GrantUsersAccessToFolder
+  GrantUsersViewerAccessToSession
+  GrantGroupAccessToFolder
+  GrantGroupViewerAccessToSession
+  GrantAllAuthenticatedUsersGroupAccessToFolder
+  GrantAllAuthenticatedUsersGroupAccessToSession
+  GrantPublicGroupAccessToFolder
+  GrantPublicGroupAccessToSession
+  RevokeAllImplicitGroupAccessToFolder
+  RevokeAllImplicitGroupAccessToSession
+  UpdateFolderIsPublic
+  UpdateSessionIsPublic
+  UpdateSessionInheritViewerAccess
+  RevokeUsersAccessFromFolder
+  RevokeUsersViewerAccessFromSession
+  RevokeGroupAccessFromFolder
+  RevokeGroupViewerAccessFromSession
 
 ```
 
 ##### panopto AccessManagement GetUserAccessDetails
 ```
-Usage: panopto.py AccessManagement GetUserAccessDetails [OPTIONS]
+Usage: panopto AccessManagement GetUserAccessDetails [OPTIONS]
 
 Options:
   --userId TEXT
@@ -209,8 +237,7 @@ Options:
 
 ##### panopto AccessManagement GetSelfUserAccessDetails
 ```
-Usage: panopto.py AccessManagement GetSelfUserAccessDetails 
-           [OPTIONS]
+Usage: panopto AccessManagement GetSelfUserAccessDetails [OPTIONS]
 
 Options:
   --help  Show this message and exit.
@@ -219,8 +246,7 @@ Options:
 
 ##### panopto AccessManagement GetSessionAccessDetails
 ```
-Usage: panopto.py AccessManagement GetSessionAccessDetails 
-           [OPTIONS]
+Usage: panopto AccessManagement GetSessionAccessDetails [OPTIONS]
 
 Options:
   --sessionId TEXT
@@ -230,7 +256,7 @@ Options:
 
 ##### panopto AccessManagement GetFolderAccessDetails
 ```
-Usage: panopto.py AccessManagement GetFolderAccessDetails [OPTIONS]
+Usage: panopto AccessManagement GetFolderAccessDetails [OPTIONS]
 
 Options:
   --folderId TEXT
@@ -240,7 +266,7 @@ Options:
 
 ##### panopto AccessManagement GetGroupAccessDetails
 ```
-Usage: panopto.py AccessManagement GetGroupAccessDetails [OPTIONS]
+Usage: panopto AccessManagement GetGroupAccessDetails [OPTIONS]
 
 Options:
   --groupId TEXT
@@ -250,8 +276,7 @@ Options:
 
 ##### panopto AccessManagement GrantUsersAccessToFolder
 ```
-Usage: panopto.py AccessManagement GrantUsersAccessToFolder 
-           [OPTIONS]
+Usage: panopto AccessManagement GrantUsersAccessToFolder [OPTIONS]
 
 Options:
   --folderId TEXT
@@ -263,7 +288,7 @@ Options:
 
 ##### panopto AccessManagement GrantUsersViewerAccessToSession
 ```
-Usage: panopto.py AccessManagement GrantUsersViewerAccessToSession 
+Usage: panopto AccessManagement GrantUsersViewerAccessToSession 
            [OPTIONS]
 
 Options:
@@ -275,8 +300,7 @@ Options:
 
 ##### panopto AccessManagement GrantGroupAccessToFolder
 ```
-Usage: panopto.py AccessManagement GrantGroupAccessToFolder 
-           [OPTIONS]
+Usage: panopto AccessManagement GrantGroupAccessToFolder [OPTIONS]
 
 Options:
   --folderId TEXT
@@ -288,7 +312,7 @@ Options:
 
 ##### panopto AccessManagement GrantGroupViewerAccessToSession
 ```
-Usage: panopto.py AccessManagement GrantGroupViewerAccessToSession 
+Usage: panopto AccessManagement GrantGroupViewerAccessToSession 
            [OPTIONS]
 
 Options:
@@ -300,7 +324,7 @@ Options:
 
 ##### panopto AccessManagement GrantAllAuthenticatedUsersGroupAccessToFolder
 ```
-Usage: panopto.py AccessManagement GrantAllAuthenticatedUsersGroupAccessToFolder 
+Usage: panopto AccessManagement GrantAllAuthenticatedUsersGroupAccessToFolder 
            [OPTIONS]
 
 Options:
@@ -312,7 +336,7 @@ Options:
 
 ##### panopto AccessManagement GrantAllAuthenticatedUsersGroupAccessToSession
 ```
-Usage: panopto.py AccessManagement GrantAllAuthenticatedUsersGroupAccessToSession 
+Usage: panopto AccessManagement GrantAllAuthenticatedUsersGroupAccessToSession 
            [OPTIONS]
 
 Options:
@@ -324,7 +348,7 @@ Options:
 
 ##### panopto AccessManagement GrantPublicGroupAccessToFolder
 ```
-Usage: panopto.py AccessManagement GrantPublicGroupAccessToFolder 
+Usage: panopto AccessManagement GrantPublicGroupAccessToFolder 
            [OPTIONS]
 
 Options:
@@ -336,7 +360,7 @@ Options:
 
 ##### panopto AccessManagement GrantPublicGroupAccessToSession
 ```
-Usage: panopto.py AccessManagement GrantPublicGroupAccessToSession 
+Usage: panopto AccessManagement GrantPublicGroupAccessToSession 
            [OPTIONS]
 
 Options:
@@ -348,7 +372,7 @@ Options:
 
 ##### panopto AccessManagement RevokeAllImplicitGroupAccessToFolder
 ```
-Usage: panopto.py AccessManagement RevokeAllImplicitGroupAccessToFolder 
+Usage: panopto AccessManagement RevokeAllImplicitGroupAccessToFolder 
            [OPTIONS]
 
 Options:
@@ -359,7 +383,7 @@ Options:
 
 ##### panopto AccessManagement RevokeAllImplicitGroupAccessToSession
 ```
-Usage: panopto.py AccessManagement RevokeAllImplicitGroupAccessToSession 
+Usage: panopto AccessManagement RevokeAllImplicitGroupAccessToSession 
            [OPTIONS]
 
 Options:
@@ -370,7 +394,7 @@ Options:
 
 ##### panopto AccessManagement UpdateFolderIsPublic
 ```
-Usage: panopto.py AccessManagement UpdateFolderIsPublic [OPTIONS]
+Usage: panopto AccessManagement UpdateFolderIsPublic [OPTIONS]
 
 Options:
   --folderId TEXT
@@ -381,7 +405,7 @@ Options:
 
 ##### panopto AccessManagement UpdateSessionIsPublic
 ```
-Usage: panopto.py AccessManagement UpdateSessionIsPublic [OPTIONS]
+Usage: panopto AccessManagement UpdateSessionIsPublic [OPTIONS]
 
 Options:
   --sessionId TEXT
@@ -392,7 +416,7 @@ Options:
 
 ##### panopto AccessManagement UpdateSessionInheritViewerAccess
 ```
-Usage: panopto.py AccessManagement UpdateSessionInheritViewerAccess 
+Usage: panopto AccessManagement UpdateSessionInheritViewerAccess 
            [OPTIONS]
 
 Options:
@@ -404,7 +428,7 @@ Options:
 
 ##### panopto AccessManagement RevokeUsersAccessFromFolder
 ```
-Usage: panopto.py AccessManagement RevokeUsersAccessFromFolder 
+Usage: panopto AccessManagement RevokeUsersAccessFromFolder 
            [OPTIONS]
 
 Options:
@@ -417,7 +441,7 @@ Options:
 
 ##### panopto AccessManagement RevokeUsersViewerAccessFromSession
 ```
-Usage: panopto.py AccessManagement RevokeUsersViewerAccessFromSession 
+Usage: panopto AccessManagement RevokeUsersViewerAccessFromSession 
            [OPTIONS]
 
 Options:
@@ -429,7 +453,7 @@ Options:
 
 ##### panopto AccessManagement RevokeGroupAccessFromFolder
 ```
-Usage: panopto.py AccessManagement RevokeGroupAccessFromFolder 
+Usage: panopto AccessManagement RevokeGroupAccessFromFolder 
            [OPTIONS]
 
 Options:
@@ -442,7 +466,7 @@ Options:
 
 ##### panopto AccessManagement RevokeGroupViewerAccessFromSession
 ```
-Usage: panopto.py AccessManagement RevokeGroupViewerAccessFromSession 
+Usage: panopto AccessManagement RevokeGroupViewerAccessFromSession 
            [OPTIONS]
 
 Options:
@@ -454,7 +478,7 @@ Options:
 
 ### panopto RemoteRecorderManagement
 ```
-Usage: panopto.py RemoteRecorderManagement [OPTIONS] COMMAND [ARGS]...
+Usage: panopto RemoteRecorderManagement [OPTIONS] COMMAND [ARGS]...
 
 Options:
   --help  Show this message and exit.
@@ -470,12 +494,22 @@ Commands:
   UpdateRecordingSettings
   GetDefaultFolderForRecorder
   GetMachineSidForRecorder
+  GetRemoteRecordersById
+  GetRemoteRecordersByExternalId
+  UpdateRemoteRecorderExternalId
+  ListRecorders
+  ScheduleRecording
+  ScheduleRecurringRecording
+  UpdateRecordingTime
+  UpdateRecordingSettings
+  GetDefaultFolderForRecorder
+  GetMachineSidForRecorder
 
 ```
 
 ##### panopto RemoteRecorderManagement GetRemoteRecordersById
 ```
-Usage: panopto.py RemoteRecorderManagement GetRemoteRecordersById 
+Usage: panopto RemoteRecorderManagement GetRemoteRecordersById 
            [OPTIONS]
 
 Options:
@@ -486,7 +520,7 @@ Options:
 
 ##### panopto RemoteRecorderManagement GetRemoteRecordersByExternalId
 ```
-Usage: panopto.py RemoteRecorderManagement GetRemoteRecordersByExternalId 
+Usage: panopto RemoteRecorderManagement GetRemoteRecordersByExternalId 
            [OPTIONS]
 
 Options:
@@ -497,7 +531,7 @@ Options:
 
 ##### panopto RemoteRecorderManagement UpdateRemoteRecorderExternalId
 ```
-Usage: panopto.py RemoteRecorderManagement UpdateRemoteRecorderExternalId 
+Usage: panopto RemoteRecorderManagement UpdateRemoteRecorderExternalId 
            [OPTIONS]
 
 Options:
@@ -509,20 +543,18 @@ Options:
 
 ##### panopto RemoteRecorderManagement ListRecorders
 ```
-Usage: panopto.py RemoteRecorderManagement ListRecorders [OPTIONS]
+Usage: panopto RemoteRecorderManagement ListRecorders [OPTIONS]
 
 Options:
-  --MaxNumberResults INTEGER
-  --PageNumber INTEGER
+  --pagination TEXT      format: MaxNumberResults=int,PageNumber=int
   --sortBy [Name|State]
-  --help                      Show this message and exit.
+  --help                 Show this message and exit.
 
 ```
 
 ##### panopto RemoteRecorderManagement ScheduleRecording
 ```
-Usage: panopto.py RemoteRecorderManagement ScheduleRecording 
-           [OPTIONS]
+Usage: panopto RemoteRecorderManagement ScheduleRecording [OPTIONS]
 
 Options:
   --name TEXT
@@ -530,14 +562,17 @@ Options:
   --isBroadcast BOOLEAN           true|false
   --start [%Y-%m-%d|%Y-%m-%dT%H:%M:%S|%Y-%m-%d %H:%M:%S]
   --end [%Y-%m-%d|%Y-%m-%dT%H:%M:%S|%Y-%m-%d %H:%M:%S]
-  --recorderSettings TEXT         allows multiple
+  --recorderSettings TEXT         allows multiple;
+                                  format: RecorderId=guid,Sup
+                                  pressPrimary=boolean,SuppressSecondary=boole
+                                  an
   --help                          Show this message and exit.
 
 ```
 
 ##### panopto RemoteRecorderManagement ScheduleRecurringRecording
 ```
-Usage: panopto.py RemoteRecorderManagement ScheduleRecurringRecording 
+Usage: panopto RemoteRecorderManagement ScheduleRecurringRecording 
            [OPTIONS]
 
 Options:
@@ -551,7 +586,7 @@ Options:
 
 ##### panopto RemoteRecorderManagement UpdateRecordingTime
 ```
-Usage: panopto.py RemoteRecorderManagement UpdateRecordingTime 
+Usage: panopto RemoteRecorderManagement UpdateRecordingTime 
            [OPTIONS]
 
 Options:
@@ -564,19 +599,21 @@ Options:
 
 ##### panopto RemoteRecorderManagement UpdateRecordingSettings
 ```
-Usage: panopto.py RemoteRecorderManagement UpdateRecordingSettings 
+Usage: panopto RemoteRecorderManagement UpdateRecordingSettings 
            [OPTIONS]
 
 Options:
   --sessionId TEXT
-  --recorderSettings TEXT  allows multiple
+  --recorderSettings TEXT  allows multiple;
+                           format: RecorderId=guid,SuppressPr
+                           imary=boolean,SuppressSecondary=boolean
   --help                   Show this message and exit.
 
 ```
 
 ##### panopto RemoteRecorderManagement GetDefaultFolderForRecorder
 ```
-Usage: panopto.py RemoteRecorderManagement GetDefaultFolderForRecorder 
+Usage: panopto RemoteRecorderManagement GetDefaultFolderForRecorder 
            [OPTIONS]
 
 Options:
@@ -587,7 +624,7 @@ Options:
 
 ##### panopto RemoteRecorderManagement GetMachineSidForRecorder
 ```
-Usage: panopto.py RemoteRecorderManagement GetMachineSidForRecorder 
+Usage: panopto RemoteRecorderManagement GetMachineSidForRecorder 
            [OPTIONS]
 
 Options:
@@ -598,7 +635,7 @@ Options:
 
 ### panopto SessionManagement
 ```
-Usage: panopto.py SessionManagement [OPTIONS] COMMAND [ARGS]...
+Usage: panopto SessionManagement [OPTIONS] COMMAND [ARGS]...
 
 Options:
   --help  Show this message and exit.
@@ -660,6 +697,73 @@ Commands:
   CreateCaptionByRelativeTime
   CreateCaptionByAbsoluteTime
   UploadTranscript
+  ReplaceMachineCaptionsAndUploadTranscript
+  GetFoldersAvailabilitySettings
+  GetSessionsAvailabilitySettings
+  UpdateFoldersAvailabilityStartSettings
+  UpdateFoldersAvailabilityEndSettings
+  UpdateSessionsAvailabilityStartSettings
+  UpdateSessionsAvailabilityEndSettings
+  GetPersonalFolderForUser
+  GetVideoDownloadURL
+  UnprovisionExternalCourse
+  AddFolder
+  AddSession
+  GetFoldersById
+  GetFoldersWithExternalContextById
+  GetFoldersByExternalId
+  GetFoldersWithExternalContextByExternalId
+  GetAllFoldersByExternalId
+  GetAllFoldersWithExternalContextByExternalId
+  GetSessionsById
+  GetSessionsByExternalId
+  GetSessionsList
+  GetFoldersList
+  GetFoldersWithExternalContextList
+  GetCreatorFoldersList
+  GetCreatorFoldersWithExternalContextList
+  UpdateSessionName
+  UpdateSessionDescription
+  UpdateSessionIsBroadcast
+  UpdateSessionSetPanoptoBroadcast
+  UpdateSessionSetRTMPBroadcast
+  UpdateSessionCreateRTMPStreams
+  UpdateSessionUpdateRTMPStreamTypes
+  UpdateSessionUpdateRTMPStreamSetShouldConvertToOnDemand
+  UpdateSessionOwner
+  MoveSessions
+  UpdateSessionExternalId
+  UpdateFolderName
+  UpdateFolderDescription
+  UpdateFolderEnablePodcast
+  UpdateFolderAllowPublicNotes
+  UpdateFolderAllowSessionDownload
+  UpdateFolderParent
+  UpdateFolderExternalId
+  UpdateFolderExternalIdWithProvider
+  DeleteSessions
+  DeleteFolders
+  ProvisionExternalCourse
+  EnsureExternalHierarchyBranch
+  ProvisionExternalCourseWithRoles
+  SetExternalCourseAccess
+  SetExternalCourseAccessForRoles
+  SetCopiedExternalCourseAccess
+  SetCopiedExternalCourseAccessForRoles
+  GetRecorderDownloadUrls
+  CreateNoteByRelativeTime
+  CreateNoteByAbsoluteTime
+  EditNote
+  DeleteNote
+  GetNote
+  ListNotes
+  AreUsersNotesPublic
+  SetNotesPublic
+  IsDropbox
+  CreateCaptionByRelativeTime
+  CreateCaptionByAbsoluteTime
+  UploadTranscript
+  ReplaceMachineCaptionsAndUploadTranscript
   GetFoldersAvailabilitySettings
   GetSessionsAvailabilitySettings
   UpdateFoldersAvailabilityStartSettings
@@ -674,7 +778,7 @@ Commands:
 
 ##### panopto SessionManagement AddFolder
 ```
-Usage: panopto.py SessionManagement AddFolder [OPTIONS]
+Usage: panopto SessionManagement AddFolder [OPTIONS]
 
 Options:
   --name TEXT
@@ -686,7 +790,7 @@ Options:
 
 ##### panopto SessionManagement AddSession
 ```
-Usage: panopto.py SessionManagement AddSession [OPTIONS]
+Usage: panopto SessionManagement AddSession [OPTIONS]
 
 Options:
   --name TEXT
@@ -698,7 +802,7 @@ Options:
 
 ##### panopto SessionManagement GetFoldersById
 ```
-Usage: panopto.py SessionManagement GetFoldersById [OPTIONS]
+Usage: panopto SessionManagement GetFoldersById [OPTIONS]
 
 Options:
   --folderIds TEXT  allows multiple
@@ -708,7 +812,7 @@ Options:
 
 ##### panopto SessionManagement GetFoldersWithExternalContextById
 ```
-Usage: panopto.py SessionManagement GetFoldersWithExternalContextById 
+Usage: panopto SessionManagement GetFoldersWithExternalContextById 
            [OPTIONS]
 
 Options:
@@ -719,8 +823,7 @@ Options:
 
 ##### panopto SessionManagement GetFoldersByExternalId
 ```
-Usage: panopto.py SessionManagement GetFoldersByExternalId 
-           [OPTIONS]
+Usage: panopto SessionManagement GetFoldersByExternalId [OPTIONS]
 
 Options:
   --folderExternalIds TEXT  allows multiple
@@ -730,7 +833,7 @@ Options:
 
 ##### panopto SessionManagement GetFoldersWithExternalContextByExternalId
 ```
-Usage: panopto.py SessionManagement GetFoldersWithExternalContextByExternalId 
+Usage: panopto SessionManagement GetFoldersWithExternalContextByExternalId 
            [OPTIONS]
 
 Options:
@@ -741,7 +844,7 @@ Options:
 
 ##### panopto SessionManagement GetAllFoldersByExternalId
 ```
-Usage: panopto.py SessionManagement GetAllFoldersByExternalId 
+Usage: panopto SessionManagement GetAllFoldersByExternalId 
            [OPTIONS]
 
 Options:
@@ -753,7 +856,7 @@ Options:
 
 ##### panopto SessionManagement GetAllFoldersWithExternalContextByExternalId
 ```
-Usage: panopto.py SessionManagement GetAllFoldersWithExternalContextByExternalId 
+Usage: panopto SessionManagement GetAllFoldersWithExternalContextByExternalId 
            [OPTIONS]
 
 Options:
@@ -765,7 +868,7 @@ Options:
 
 ##### panopto SessionManagement GetSessionsById
 ```
-Usage: panopto.py SessionManagement GetSessionsById [OPTIONS]
+Usage: panopto SessionManagement GetSessionsById [OPTIONS]
 
 Options:
   --sessionIds TEXT  allows multiple
@@ -775,8 +878,7 @@ Options:
 
 ##### panopto SessionManagement GetSessionsByExternalId
 ```
-Usage: panopto.py SessionManagement GetSessionsByExternalId 
-           [OPTIONS]
+Usage: panopto SessionManagement GetSessionsByExternalId [OPTIONS]
 
 Options:
   --sessionExternalIds TEXT  allows multiple
@@ -786,100 +888,75 @@ Options:
 
 ##### panopto SessionManagement GetSessionsList
 ```
-Usage: panopto.py SessionManagement GetSessionsList [OPTIONS]
+Usage: panopto SessionManagement GetSessionsList [OPTIONS]
 
 Options:
-  --EndDate [%Y-%m-%d|%Y-%m-%dT%H:%M:%S|%Y-%m-%d %H:%M:%S]
-  --FolderId TEXT
-  --MaxNumberResults INTEGER
-  --PageNumber INTEGER
-  --RemoteRecorderId TEXT
-  --SortBy [Name|Date|Duration|State|Relevance|Order]
-  --SortIncreasing BOOLEAN        true|false
-  --StartDate [%Y-%m-%d|%Y-%m-%dT%H:%M:%S|%Y-%m-%d %H:%M:%S]
-  --States TEXT                   allows multiple
+  --request TEXT      format: EndDate=dateTime,FolderId=guid,Pagination=Pagina
+                      tion,RemoteRecorderId=guid,SortBy=SessionSortField,SortI
+                      ncreasing=boolean,StartDate=dateTime,States=ArrayOfSessi
+                      onState
   --searchQuery TEXT
-  --help                          Show this message and exit.
+  --help              Show this message and exit.
 
 ```
 
 ##### panopto SessionManagement GetFoldersList
 ```
-Usage: panopto.py SessionManagement GetFoldersList [OPTIONS]
+Usage: panopto SessionManagement GetFoldersList [OPTIONS]
 
 Options:
-  --MaxNumberResults INTEGER
-  --PageNumber INTEGER
-  --ParentFolderId TEXT
-  --PublicOnly BOOLEAN            true|false
-  --SortBy [Name|Sessions|Relavance]
-  --SortIncreasing BOOLEAN        true|false
-  --WildcardSearchNameOnly BOOLEAN
-                                  true|false
+  --request TEXT      format: Pagination=Pagination,ParentFolderId=guid,Public
+                      Only=boolean,SortBy=FolderSortField,SortIncreasing=boole
+                      an,WildcardSearchNameOnly=boolean
   --searchQuery TEXT
-  --help                          Show this message and exit.
+  --help              Show this message and exit.
 
 ```
 
 ##### panopto SessionManagement GetFoldersWithExternalContextList
 ```
-Usage: panopto.py SessionManagement GetFoldersWithExternalContextList 
+Usage: panopto SessionManagement GetFoldersWithExternalContextList 
            [OPTIONS]
 
 Options:
-  --MaxNumberResults INTEGER
-  --PageNumber INTEGER
-  --ParentFolderId TEXT
-  --PublicOnly BOOLEAN            true|false
-  --SortBy [Name|Sessions|Relavance]
-  --SortIncreasing BOOLEAN        true|false
-  --WildcardSearchNameOnly BOOLEAN
-                                  true|false
+  --request TEXT      format: Pagination=Pagination,ParentFolderId=guid,Public
+                      Only=boolean,SortBy=FolderSortField,SortIncreasing=boole
+                      an,WildcardSearchNameOnly=boolean
   --searchQuery TEXT
-  --help                          Show this message and exit.
+  --help              Show this message and exit.
 
 ```
 
 ##### panopto SessionManagement GetCreatorFoldersList
 ```
-Usage: panopto.py SessionManagement GetCreatorFoldersList [OPTIONS]
+Usage: panopto SessionManagement GetCreatorFoldersList [OPTIONS]
 
 Options:
-  --MaxNumberResults INTEGER
-  --PageNumber INTEGER
-  --ParentFolderId TEXT
-  --PublicOnly BOOLEAN            true|false
-  --SortBy [Name|Sessions|Relavance]
-  --SortIncreasing BOOLEAN        true|false
-  --WildcardSearchNameOnly BOOLEAN
-                                  true|false
+  --request TEXT      format: Pagination=Pagination,ParentFolderId=guid,Public
+                      Only=boolean,SortBy=FolderSortField,SortIncreasing=boole
+                      an,WildcardSearchNameOnly=boolean
   --searchQuery TEXT
-  --help                          Show this message and exit.
+  --help              Show this message and exit.
 
 ```
 
 ##### panopto SessionManagement GetCreatorFoldersWithExternalContextList
 ```
-Usage: panopto.py SessionManagement GetCreatorFoldersWithExternalContextList 
+Usage: panopto SessionManagement GetCreatorFoldersWithExternalContextList 
            [OPTIONS]
 
 Options:
-  --MaxNumberResults INTEGER
-  --PageNumber INTEGER
-  --ParentFolderId TEXT
-  --PublicOnly BOOLEAN            true|false
-  --SortBy [Name|Sessions|Relavance]
-  --SortIncreasing BOOLEAN        true|false
-  --WildcardSearchNameOnly BOOLEAN
-                                  true|false
+  --request TEXT      format: Pagination=Pagination,ParentFolderId=guid,Public
+                      Only=boolean,SortBy=FolderSortField,SortIncreasing=boole
+                      an,WildcardSearchNameOnly=boolean
   --searchQuery TEXT
-  --help                          Show this message and exit.
+  --help              Show this message and exit.
 
 ```
 
 ##### panopto SessionManagement UpdateSessionName
 ```
-Usage: panopto.py SessionManagement UpdateSessionName [OPTIONS]
+Usage: panopto SessionManagement UpdateSessionName [OPTIONS]
 
 Options:
   --sessionId TEXT
@@ -890,8 +967,7 @@ Options:
 
 ##### panopto SessionManagement UpdateSessionDescription
 ```
-Usage: panopto.py SessionManagement UpdateSessionDescription 
-           [OPTIONS]
+Usage: panopto SessionManagement UpdateSessionDescription [OPTIONS]
 
 Options:
   --sessionId TEXT
@@ -902,8 +978,7 @@ Options:
 
 ##### panopto SessionManagement UpdateSessionIsBroadcast
 ```
-Usage: panopto.py SessionManagement UpdateSessionIsBroadcast 
-           [OPTIONS]
+Usage: panopto SessionManagement UpdateSessionIsBroadcast [OPTIONS]
 
 Options:
   --sessionId TEXT
@@ -914,7 +989,7 @@ Options:
 
 ##### panopto SessionManagement UpdateSessionSetPanoptoBroadcast
 ```
-Usage: panopto.py SessionManagement UpdateSessionSetPanoptoBroadcast 
+Usage: panopto SessionManagement UpdateSessionSetPanoptoBroadcast 
            [OPTIONS]
 
 Options:
@@ -925,7 +1000,7 @@ Options:
 
 ##### panopto SessionManagement UpdateSessionSetRTMPBroadcast
 ```
-Usage: panopto.py SessionManagement UpdateSessionSetRTMPBroadcast 
+Usage: panopto SessionManagement UpdateSessionSetRTMPBroadcast 
            [OPTIONS]
 
 Options:
@@ -936,7 +1011,7 @@ Options:
 
 ##### panopto SessionManagement UpdateSessionCreateRTMPStreams
 ```
-Usage: panopto.py SessionManagement UpdateSessionCreateRTMPStreams 
+Usage: panopto SessionManagement UpdateSessionCreateRTMPStreams 
            [OPTIONS]
 
 Options:
@@ -949,7 +1024,7 @@ Options:
 
 ##### panopto SessionManagement UpdateSessionUpdateRTMPStreamTypes
 ```
-Usage: panopto.py SessionManagement UpdateSessionUpdateRTMPStreamTypes 
+Usage: panopto SessionManagement UpdateSessionUpdateRTMPStreamTypes 
            [OPTIONS]
 
 Options:
@@ -962,7 +1037,7 @@ Options:
 
 ##### panopto SessionManagement UpdateSessionUpdateRTMPStreamSetShouldConvertToOnDemand
 ```
-Usage: panopto.py SessionManagement UpdateSessionUpdateRTMPStreamSetShouldConvertToOnDemand 
+Usage: panopto SessionManagement UpdateSessionUpdateRTMPStreamSetShouldConvertToOnDemand 
            [OPTIONS]
 
 Options:
@@ -975,7 +1050,7 @@ Options:
 
 ##### panopto SessionManagement UpdateSessionOwner
 ```
-Usage: panopto.py SessionManagement UpdateSessionOwner [OPTIONS]
+Usage: panopto SessionManagement UpdateSessionOwner [OPTIONS]
 
 Options:
   --sessionIds TEXT       allows multiple
@@ -986,7 +1061,7 @@ Options:
 
 ##### panopto SessionManagement MoveSessions
 ```
-Usage: panopto.py SessionManagement MoveSessions [OPTIONS]
+Usage: panopto SessionManagement MoveSessions [OPTIONS]
 
 Options:
   --sessionIds TEXT  allows multiple
@@ -997,8 +1072,7 @@ Options:
 
 ##### panopto SessionManagement UpdateSessionExternalId
 ```
-Usage: panopto.py SessionManagement UpdateSessionExternalId 
-           [OPTIONS]
+Usage: panopto SessionManagement UpdateSessionExternalId [OPTIONS]
 
 Options:
   --sessionId TEXT
@@ -1009,7 +1083,7 @@ Options:
 
 ##### panopto SessionManagement UpdateFolderName
 ```
-Usage: panopto.py SessionManagement UpdateFolderName [OPTIONS]
+Usage: panopto SessionManagement UpdateFolderName [OPTIONS]
 
 Options:
   --folderId TEXT
@@ -1020,8 +1094,7 @@ Options:
 
 ##### panopto SessionManagement UpdateFolderDescription
 ```
-Usage: panopto.py SessionManagement UpdateFolderDescription 
-           [OPTIONS]
+Usage: panopto SessionManagement UpdateFolderDescription [OPTIONS]
 
 Options:
   --folderId TEXT
@@ -1032,7 +1105,7 @@ Options:
 
 ##### panopto SessionManagement UpdateFolderEnablePodcast
 ```
-Usage: panopto.py SessionManagement UpdateFolderEnablePodcast 
+Usage: panopto SessionManagement UpdateFolderEnablePodcast 
            [OPTIONS]
 
 Options:
@@ -1044,7 +1117,7 @@ Options:
 
 ##### panopto SessionManagement UpdateFolderAllowPublicNotes
 ```
-Usage: panopto.py SessionManagement UpdateFolderAllowPublicNotes 
+Usage: panopto SessionManagement UpdateFolderAllowPublicNotes 
            [OPTIONS]
 
 Options:
@@ -1056,7 +1129,7 @@ Options:
 
 ##### panopto SessionManagement UpdateFolderAllowSessionDownload
 ```
-Usage: panopto.py SessionManagement UpdateFolderAllowSessionDownload 
+Usage: panopto SessionManagement UpdateFolderAllowSessionDownload 
            [OPTIONS]
 
 Options:
@@ -1068,7 +1141,7 @@ Options:
 
 ##### panopto SessionManagement UpdateFolderParent
 ```
-Usage: panopto.py SessionManagement UpdateFolderParent [OPTIONS]
+Usage: panopto SessionManagement UpdateFolderParent [OPTIONS]
 
 Options:
   --folderId TEXT
@@ -1079,8 +1152,7 @@ Options:
 
 ##### panopto SessionManagement UpdateFolderExternalId
 ```
-Usage: panopto.py SessionManagement UpdateFolderExternalId 
-           [OPTIONS]
+Usage: panopto SessionManagement UpdateFolderExternalId [OPTIONS]
 
 Options:
   --folderId TEXT
@@ -1091,7 +1163,7 @@ Options:
 
 ##### panopto SessionManagement UpdateFolderExternalIdWithProvider
 ```
-Usage: panopto.py SessionManagement UpdateFolderExternalIdWithProvider 
+Usage: panopto SessionManagement UpdateFolderExternalIdWithProvider 
            [OPTIONS]
 
 Options:
@@ -1104,7 +1176,7 @@ Options:
 
 ##### panopto SessionManagement DeleteSessions
 ```
-Usage: panopto.py SessionManagement DeleteSessions [OPTIONS]
+Usage: panopto SessionManagement DeleteSessions [OPTIONS]
 
 Options:
   --sessionIds TEXT  allows multiple
@@ -1114,7 +1186,7 @@ Options:
 
 ##### panopto SessionManagement DeleteFolders
 ```
-Usage: panopto.py SessionManagement DeleteFolders [OPTIONS]
+Usage: panopto SessionManagement DeleteFolders [OPTIONS]
 
 Options:
   --folderIds TEXT  allows multiple
@@ -1124,8 +1196,7 @@ Options:
 
 ##### panopto SessionManagement ProvisionExternalCourse
 ```
-Usage: panopto.py SessionManagement ProvisionExternalCourse 
-           [OPTIONS]
+Usage: panopto SessionManagement ProvisionExternalCourse [OPTIONS]
 
 Options:
   --name TEXT
@@ -1136,18 +1207,20 @@ Options:
 
 ##### panopto SessionManagement EnsureExternalHierarchyBranch
 ```
-Usage: panopto.py SessionManagement EnsureExternalHierarchyBranch 
+Usage: panopto SessionManagement EnsureExternalHierarchyBranch 
            [OPTIONS]
 
 Options:
-  --externalHierarchyBranch TEXT  allows multiple
+  --externalHierarchyBranch TEXT  allows multiple;
+                                  format: ExternalId=string,I
+                                  sCourse=boolean,Name=string
   --help                          Show this message and exit.
 
 ```
 
 ##### panopto SessionManagement ProvisionExternalCourseWithRoles
 ```
-Usage: panopto.py SessionManagement ProvisionExternalCourseWithRoles 
+Usage: panopto SessionManagement ProvisionExternalCourseWithRoles 
            [OPTIONS]
 
 Options:
@@ -1160,8 +1233,7 @@ Options:
 
 ##### panopto SessionManagement SetExternalCourseAccess
 ```
-Usage: panopto.py SessionManagement SetExternalCourseAccess 
-           [OPTIONS]
+Usage: panopto SessionManagement SetExternalCourseAccess [OPTIONS]
 
 Options:
   --name TEXT
@@ -1173,7 +1245,7 @@ Options:
 
 ##### panopto SessionManagement SetExternalCourseAccessForRoles
 ```
-Usage: panopto.py SessionManagement SetExternalCourseAccessForRoles 
+Usage: panopto SessionManagement SetExternalCourseAccessForRoles 
            [OPTIONS]
 
 Options:
@@ -1187,7 +1259,7 @@ Options:
 
 ##### panopto SessionManagement SetCopiedExternalCourseAccess
 ```
-Usage: panopto.py SessionManagement SetCopiedExternalCourseAccess 
+Usage: panopto SessionManagement SetCopiedExternalCourseAccess 
            [OPTIONS]
 
 Options:
@@ -1200,7 +1272,7 @@ Options:
 
 ##### panopto SessionManagement SetCopiedExternalCourseAccessForRoles
 ```
-Usage: panopto.py SessionManagement SetCopiedExternalCourseAccessForRoles 
+Usage: panopto SessionManagement SetCopiedExternalCourseAccessForRoles 
            [OPTIONS]
 
 Options:
@@ -1214,8 +1286,7 @@ Options:
 
 ##### panopto SessionManagement GetRecorderDownloadUrls
 ```
-Usage: panopto.py SessionManagement GetRecorderDownloadUrls 
-           [OPTIONS]
+Usage: panopto SessionManagement GetRecorderDownloadUrls [OPTIONS]
 
 Options:
   --help  Show this message and exit.
@@ -1224,8 +1295,7 @@ Options:
 
 ##### panopto SessionManagement CreateNoteByRelativeTime
 ```
-Usage: panopto.py SessionManagement CreateNoteByRelativeTime 
-           [OPTIONS]
+Usage: panopto SessionManagement CreateNoteByRelativeTime [OPTIONS]
 
 Options:
   --sessionId TEXT
@@ -1238,8 +1308,7 @@ Options:
 
 ##### panopto SessionManagement CreateNoteByAbsoluteTime
 ```
-Usage: panopto.py SessionManagement CreateNoteByAbsoluteTime 
-           [OPTIONS]
+Usage: panopto SessionManagement CreateNoteByAbsoluteTime [OPTIONS]
 
 Options:
   --sessionId TEXT
@@ -1252,7 +1321,7 @@ Options:
 
 ##### panopto SessionManagement EditNote
 ```
-Usage: panopto.py SessionManagement EditNote [OPTIONS]
+Usage: panopto SessionManagement EditNote [OPTIONS]
 
 Options:
   --noteId TEXT
@@ -1264,7 +1333,7 @@ Options:
 
 ##### panopto SessionManagement DeleteNote
 ```
-Usage: panopto.py SessionManagement DeleteNote [OPTIONS]
+Usage: panopto SessionManagement DeleteNote [OPTIONS]
 
 Options:
   --noteId TEXT
@@ -1275,7 +1344,7 @@ Options:
 
 ##### panopto SessionManagement GetNote
 ```
-Usage: panopto.py SessionManagement GetNote [OPTIONS]
+Usage: panopto SessionManagement GetNote [OPTIONS]
 
 Options:
   --noteId TEXT
@@ -1286,22 +1355,21 @@ Options:
 
 ##### panopto SessionManagement ListNotes
 ```
-Usage: panopto.py SessionManagement ListNotes [OPTIONS]
+Usage: panopto SessionManagement ListNotes [OPTIONS]
 
 Options:
   --sessionId TEXT
-  --MaxNumberResults INTEGER
-  --PageNumber INTEGER
+  --pagination TEXT   format: MaxNumberResults=int,PageNumber=int
   --creatorId TEXT
   --channel TEXT
   --searchQuery TEXT
-  --help                      Show this message and exit.
+  --help              Show this message and exit.
 
 ```
 
 ##### panopto SessionManagement AreUsersNotesPublic
 ```
-Usage: panopto.py SessionManagement AreUsersNotesPublic [OPTIONS]
+Usage: panopto SessionManagement AreUsersNotesPublic [OPTIONS]
 
 Options:
   --userId TEXT
@@ -1312,7 +1380,7 @@ Options:
 
 ##### panopto SessionManagement SetNotesPublic
 ```
-Usage: panopto.py SessionManagement SetNotesPublic [OPTIONS]
+Usage: panopto SessionManagement SetNotesPublic [OPTIONS]
 
 Options:
   --sessionId TEXT
@@ -1323,7 +1391,7 @@ Options:
 
 ##### panopto SessionManagement IsDropbox
 ```
-Usage: panopto.py SessionManagement IsDropbox [OPTIONS]
+Usage: panopto SessionManagement IsDropbox [OPTIONS]
 
 Options:
   --folderId TEXT
@@ -1333,7 +1401,7 @@ Options:
 
 ##### panopto SessionManagement CreateCaptionByRelativeTime
 ```
-Usage: panopto.py SessionManagement CreateCaptionByRelativeTime 
+Usage: panopto SessionManagement CreateCaptionByRelativeTime 
            [OPTIONS]
 
 Options:
@@ -1346,7 +1414,7 @@ Options:
 
 ##### panopto SessionManagement CreateCaptionByAbsoluteTime
 ```
-Usage: panopto.py SessionManagement CreateCaptionByAbsoluteTime 
+Usage: panopto SessionManagement CreateCaptionByAbsoluteTime 
            [OPTIONS]
 
 Options:
@@ -1359,7 +1427,19 @@ Options:
 
 ##### panopto SessionManagement UploadTranscript
 ```
-Usage: panopto.py SessionManagement UploadTranscript [OPTIONS]
+Usage: panopto SessionManagement UploadTranscript [OPTIONS]
+
+Options:
+  --sessionId TEXT
+  --file TEXT
+  --help            Show this message and exit.
+
+```
+
+##### panopto SessionManagement ReplaceMachineCaptionsAndUploadTranscript
+```
+Usage: panopto SessionManagement ReplaceMachineCaptionsAndUploadTranscript 
+           [OPTIONS]
 
 Options:
   --sessionId TEXT
@@ -1370,7 +1450,7 @@ Options:
 
 ##### panopto SessionManagement GetFoldersAvailabilitySettings
 ```
-Usage: panopto.py SessionManagement GetFoldersAvailabilitySettings 
+Usage: panopto SessionManagement GetFoldersAvailabilitySettings 
            [OPTIONS]
 
 Options:
@@ -1381,7 +1461,7 @@ Options:
 
 ##### panopto SessionManagement GetSessionsAvailabilitySettings
 ```
-Usage: panopto.py SessionManagement GetSessionsAvailabilitySettings 
+Usage: panopto SessionManagement GetSessionsAvailabilitySettings 
            [OPTIONS]
 
 Options:
@@ -1392,7 +1472,7 @@ Options:
 
 ##### panopto SessionManagement UpdateFoldersAvailabilityStartSettings
 ```
-Usage: panopto.py SessionManagement UpdateFoldersAvailabilityStartSettings 
+Usage: panopto SessionManagement UpdateFoldersAvailabilityStartSettings 
            [OPTIONS]
 
 Options:
@@ -1407,7 +1487,7 @@ Options:
 
 ##### panopto SessionManagement UpdateFoldersAvailabilityEndSettings
 ```
-Usage: panopto.py SessionManagement UpdateFoldersAvailabilityEndSettings 
+Usage: panopto SessionManagement UpdateFoldersAvailabilityEndSettings 
            [OPTIONS]
 
 Options:
@@ -1422,7 +1502,7 @@ Options:
 
 ##### panopto SessionManagement UpdateSessionsAvailabilityStartSettings
 ```
-Usage: panopto.py SessionManagement UpdateSessionsAvailabilityStartSettings 
+Usage: panopto SessionManagement UpdateSessionsAvailabilityStartSettings 
            [OPTIONS]
 
 Options:
@@ -1435,7 +1515,7 @@ Options:
 
 ##### panopto SessionManagement UpdateSessionsAvailabilityEndSettings
 ```
-Usage: panopto.py SessionManagement UpdateSessionsAvailabilityEndSettings 
+Usage: panopto SessionManagement UpdateSessionsAvailabilityEndSettings 
            [OPTIONS]
 
 Options:
@@ -1448,8 +1528,7 @@ Options:
 
 ##### panopto SessionManagement GetPersonalFolderForUser
 ```
-Usage: panopto.py SessionManagement GetPersonalFolderForUser 
-           [OPTIONS]
+Usage: panopto SessionManagement GetPersonalFolderForUser [OPTIONS]
 
 Options:
   --userId TEXT
@@ -1460,7 +1539,7 @@ Options:
 
 ##### panopto SessionManagement GetVideoDownloadURL
 ```
-Usage: panopto.py SessionManagement GetVideoDownloadURL [OPTIONS]
+Usage: panopto SessionManagement GetVideoDownloadURL [OPTIONS]
 
 Options:
   --sessionId TEXT
@@ -1470,7 +1549,7 @@ Options:
 
 ##### panopto SessionManagement UnprovisionExternalCourse
 ```
-Usage: panopto.py SessionManagement UnprovisionExternalCourse 
+Usage: panopto SessionManagement UnprovisionExternalCourse 
            [OPTIONS]
 
 Options:
@@ -1481,7 +1560,7 @@ Options:
 
 ### panopto UsageReporting
 ```
-Usage: panopto.py UsageReporting [OPTIONS] COMMAND [ARGS]...
+Usage: panopto UsageReporting [OPTIONS] COMMAND [ARGS]...
 
 Options:
   --help  Show this message and exit.
@@ -1501,12 +1580,34 @@ Commands:
   GetRecentReports
   QueueReport
   GetReport
+  CancelReport
+  CreateRecurringReport
+  DeleteRecurringReport
+  GetRecurringReports
+  GetSystemSummaryUsage
+  GetFolderSummaryUsage
+  GetSessionSummaryUsage
+  GetSessionDetailedUsage
+  GetSessionExtendedDetailedUsage
+  GetUserDetailedUsage
+  GetUserExtendedDetailedUsage
+  GetSessionUserDetailedUsage
+  GetSessionUserExtendedDetailedUsage
+  DescribeReportTypes
+  DescribeReportType
+  GetRecentReports
+  QueueReport
+  GetReport
+  CancelReport
+  CreateRecurringReport
+  DeleteRecurringReport
+  GetRecurringReports
 
 ```
 
 ##### panopto UsageReporting GetSystemSummaryUsage
 ```
-Usage: panopto.py UsageReporting GetSystemSummaryUsage [OPTIONS]
+Usage: panopto UsageReporting GetSystemSummaryUsage [OPTIONS]
 
 Options:
   --beginRange [%Y-%m-%d|%Y-%m-%dT%H:%M:%S|%Y-%m-%d %H:%M:%S]
@@ -1518,7 +1619,7 @@ Options:
 
 ##### panopto UsageReporting GetFolderSummaryUsage
 ```
-Usage: panopto.py UsageReporting GetFolderSummaryUsage [OPTIONS]
+Usage: panopto UsageReporting GetFolderSummaryUsage [OPTIONS]
 
 Options:
   --folderId TEXT
@@ -1531,7 +1632,7 @@ Options:
 
 ##### panopto UsageReporting GetSessionSummaryUsage
 ```
-Usage: panopto.py UsageReporting GetSessionSummaryUsage [OPTIONS]
+Usage: panopto UsageReporting GetSessionSummaryUsage [OPTIONS]
 
 Options:
   --sessionId TEXT
@@ -1544,12 +1645,11 @@ Options:
 
 ##### panopto UsageReporting GetSessionDetailedUsage
 ```
-Usage: panopto.py UsageReporting GetSessionDetailedUsage [OPTIONS]
+Usage: panopto UsageReporting GetSessionDetailedUsage [OPTIONS]
 
 Options:
   --sessionId TEXT
-  --MaxNumberResults INTEGER
-  --PageNumber INTEGER
+  --pagination TEXT               format: MaxNumberResults=int,PageNumber=int
   --beginRange [%Y-%m-%d|%Y-%m-%dT%H:%M:%S|%Y-%m-%d %H:%M:%S]
   --endRange [%Y-%m-%d|%Y-%m-%dT%H:%M:%S|%Y-%m-%d %H:%M:%S]
   --help                          Show this message and exit.
@@ -1558,13 +1658,12 @@ Options:
 
 ##### panopto UsageReporting GetSessionExtendedDetailedUsage
 ```
-Usage: panopto.py UsageReporting GetSessionExtendedDetailedUsage 
+Usage: panopto UsageReporting GetSessionExtendedDetailedUsage 
            [OPTIONS]
 
 Options:
   --sessionId TEXT
-  --MaxNumberResults INTEGER
-  --PageNumber INTEGER
+  --pagination TEXT               format: MaxNumberResults=int,PageNumber=int
   --beginRange [%Y-%m-%d|%Y-%m-%dT%H:%M:%S|%Y-%m-%d %H:%M:%S]
   --endRange [%Y-%m-%d|%Y-%m-%dT%H:%M:%S|%Y-%m-%d %H:%M:%S]
   --help                          Show this message and exit.
@@ -1573,25 +1672,23 @@ Options:
 
 ##### panopto UsageReporting GetUserDetailedUsage
 ```
-Usage: panopto.py UsageReporting GetUserDetailedUsage [OPTIONS]
+Usage: panopto UsageReporting GetUserDetailedUsage [OPTIONS]
 
 Options:
   --userId TEXT
-  --MaxNumberResults INTEGER
-  --PageNumber INTEGER
-  --help                      Show this message and exit.
+  --pagination TEXT  format: MaxNumberResults=int,PageNumber=int
+  --help             Show this message and exit.
 
 ```
 
 ##### panopto UsageReporting GetUserExtendedDetailedUsage
 ```
-Usage: panopto.py UsageReporting GetUserExtendedDetailedUsage 
+Usage: panopto UsageReporting GetUserExtendedDetailedUsage 
            [OPTIONS]
 
 Options:
   --userId TEXT
-  --MaxNumberResults INTEGER
-  --PageNumber INTEGER
+  --pagination TEXT               format: MaxNumberResults=int,PageNumber=int
   --beginRange [%Y-%m-%d|%Y-%m-%dT%H:%M:%S|%Y-%m-%d %H:%M:%S]
   --endRange [%Y-%m-%d|%Y-%m-%dT%H:%M:%S|%Y-%m-%d %H:%M:%S]
   --help                          Show this message and exit.
@@ -1600,35 +1697,32 @@ Options:
 
 ##### panopto UsageReporting GetSessionUserDetailedUsage
 ```
-Usage: panopto.py UsageReporting GetSessionUserDetailedUsage 
-           [OPTIONS]
+Usage: panopto UsageReporting GetSessionUserDetailedUsage [OPTIONS]
 
 Options:
   --sessionId TEXT
   --userId TEXT
-  --MaxNumberResults INTEGER
-  --PageNumber INTEGER
-  --help                      Show this message and exit.
+  --pagination TEXT  format: MaxNumberResults=int,PageNumber=int
+  --help             Show this message and exit.
 
 ```
 
 ##### panopto UsageReporting GetSessionUserExtendedDetailedUsage
 ```
-Usage: panopto.py UsageReporting GetSessionUserExtendedDetailedUsage 
+Usage: panopto UsageReporting GetSessionUserExtendedDetailedUsage 
            [OPTIONS]
 
 Options:
   --sessionId TEXT
   --userId TEXT
-  --MaxNumberResults INTEGER
-  --PageNumber INTEGER
-  --help                      Show this message and exit.
+  --pagination TEXT  format: MaxNumberResults=int,PageNumber=int
+  --help             Show this message and exit.
 
 ```
 
 ##### panopto UsageReporting DescribeReportTypes
 ```
-Usage: panopto.py UsageReporting DescribeReportTypes [OPTIONS]
+Usage: panopto UsageReporting DescribeReportTypes [OPTIONS]
 
 Options:
   --help  Show this message and exit.
@@ -1637,7 +1731,7 @@ Options:
 
 ##### panopto UsageReporting DescribeReportType
 ```
-Usage: panopto.py UsageReporting DescribeReportType [OPTIONS]
+Usage: panopto UsageReporting DescribeReportType [OPTIONS]
 
 Options:
   --reportType [FolderUsage|SessionUsage|UserViewingUsage|UserCreationUsage|LastLoginTime|SessionsViewsByUsers|SessionsViewsByViewingType|SessionsCreatedOrEdited|RemoteRecorderUsage|SystemViews]
@@ -1647,7 +1741,7 @@ Options:
 
 ##### panopto UsageReporting GetRecentReports
 ```
-Usage: panopto.py UsageReporting GetRecentReports [OPTIONS]
+Usage: panopto UsageReporting GetRecentReports [OPTIONS]
 
 Options:
   --reportType [FolderUsage|SessionUsage|UserViewingUsage|UserCreationUsage|LastLoginTime|SessionsViewsByUsers|SessionsViewsByViewingType|SessionsCreatedOrEdited|RemoteRecorderUsage|SystemViews]
@@ -1657,7 +1751,7 @@ Options:
 
 ##### panopto UsageReporting QueueReport
 ```
-Usage: panopto.py UsageReporting QueueReport [OPTIONS]
+Usage: panopto UsageReporting QueueReport [OPTIONS]
 
 Options:
   --reportType [FolderUsage|SessionUsage|UserViewingUsage|UserCreationUsage|LastLoginTime|SessionsViewsByUsers|SessionsViewsByViewingType|SessionsCreatedOrEdited|RemoteRecorderUsage|SystemViews]
@@ -1669,7 +1763,7 @@ Options:
 
 ##### panopto UsageReporting GetReport
 ```
-Usage: panopto.py UsageReporting GetReport [OPTIONS]
+Usage: panopto UsageReporting GetReport [OPTIONS]
 
 Options:
   --reportId TEXT
@@ -1677,9 +1771,51 @@ Options:
 
 ```
 
+##### panopto UsageReporting CancelReport
+```
+Usage: panopto UsageReporting CancelReport [OPTIONS]
+
+Options:
+  --reportId TEXT
+  --help           Show this message and exit.
+
+```
+
+##### panopto UsageReporting CreateRecurringReport
+```
+Usage: panopto UsageReporting CreateRecurringReport [OPTIONS]
+
+Options:
+  --cadenceType TEXT
+  --cadenceOffset INTEGER
+  --reportType [FolderUsage|SessionUsage|UserViewingUsage|UserCreationUsage|LastLoginTime|SessionsViewsByUsers|SessionsViewsByViewingType|SessionsCreatedOrEdited|RemoteRecorderUsage|SystemViews]
+  --help                          Show this message and exit.
+
+```
+
+##### panopto UsageReporting DeleteRecurringReport
+```
+Usage: panopto UsageReporting DeleteRecurringReport [OPTIONS]
+
+Options:
+  --reportId TEXT
+  --help           Show this message and exit.
+
+```
+
+##### panopto UsageReporting GetRecurringReports
+```
+Usage: panopto UsageReporting GetRecurringReports [OPTIONS]
+
+Options:
+  --reportType [FolderUsage|SessionUsage|UserViewingUsage|UserCreationUsage|LastLoginTime|SessionsViewsByUsers|SessionsViewsByViewingType|SessionsCreatedOrEdited|RemoteRecorderUsage|SystemViews]
+  --help                          Show this message and exit.
+
+```
+
 ### panopto UserManagement
 ```
-Usage: panopto.py UserManagement [OPTIONS] COMMAND [ARGS]...
+Usage: panopto UserManagement [OPTIONS] COMMAND [ARGS]...
 
 Options:
   --help  Show this message and exit.
@@ -1712,43 +1848,67 @@ Commands:
   GetGroupsByName
   GetUsersInGroup
   SetUserHasLoggedIn
+  CreateUser
+  CreateUsers
+  GetUserByKey
+  GetUsers
+  ListUsers
+  UpdateContactInfo
+  UpdateUserBio
+  UpdatePassword
+  ResetPassword
+  UnlockAccount
+  SetSystemRole
+  DeleteUsers
+  CreateInternalGroup
+  GetGroupIsPublic
+  SetGroupIsPublic
+  CreateExternalGroup
+  AddMembersToInternalGroup
+  RemoveMembersFromInternalGroup
+  AddMembersToExternalGroup
+  RemoveMembersFromExternalGroup
+  SyncExternalUser
+  DeleteGroup
+  GetGroup
+  ListGroups
+  GetGroupsByName
+  GetUsersInGroup
+  SetUserHasLoggedIn
 
 ```
 
 ##### panopto UserManagement CreateUser
 ```
-Usage: panopto.py UserManagement CreateUser [OPTIONS]
+Usage: panopto UserManagement CreateUser [OPTIONS]
 
 Options:
-  --Email TEXT
-  --EmailSessionNotifications BOOLEAN
-                                  true|false
-  --FirstName TEXT
-  --GroupMemberships TEXT         allows multiple
-  --LastName TEXT
-  --SystemRole [None|Videographer|Admin]
-  --UserBio TEXT
-  --UserId TEXT
-  --UserKey TEXT
-  --UserSettingsUrl TEXT
+  --user TEXT             format: Email=string,EmailSessionNotifications=boole
+                          an,FirstName=string,GroupMemberships=ArrayOfguid,Las
+                          tName=string,SystemRole=SystemRole,UserBio=string,Us
+                          erId=guid,UserKey=string,UserSettingsUrl=string
   --initialPassword TEXT
-  --help                          Show this message and exit.
+  --help                  Show this message and exit.
 
 ```
 
 ##### panopto UserManagement CreateUsers
 ```
-Usage: panopto.py UserManagement CreateUsers [OPTIONS]
+Usage: panopto UserManagement CreateUsers [OPTIONS]
 
 Options:
-  --users TEXT  allows multiple
+  --users TEXT  allows multiple;
+                format: Email=string,EmailSessionNotification
+                s=boolean,FirstName=string,GroupMemberships=ArrayOfguid,LastNa
+                me=string,SystemRole=SystemRole,UserBio=string,UserId=guid,Use
+                rKey=string,UserSettingsUrl=string
   --help        Show this message and exit.
 
 ```
 
 ##### panopto UserManagement GetUserByKey
 ```
-Usage: panopto.py UserManagement GetUserByKey [OPTIONS]
+Usage: panopto UserManagement GetUserByKey [OPTIONS]
 
 Options:
   --userKey TEXT
@@ -1758,7 +1918,7 @@ Options:
 
 ##### panopto UserManagement GetUsers
 ```
-Usage: panopto.py UserManagement GetUsers [OPTIONS]
+Usage: panopto UserManagement GetUsers [OPTIONS]
 
 Options:
   --userIds TEXT  allows multiple
@@ -1768,21 +1928,19 @@ Options:
 
 ##### panopto UserManagement ListUsers
 ```
-Usage: panopto.py UserManagement ListUsers [OPTIONS]
+Usage: panopto UserManagement ListUsers [OPTIONS]
 
 Options:
-  --MaxNumberResults INTEGER
-  --PageNumber INTEGER
-  --SortBy [UserKey|Role|Added|LastLogOn|Email|FullName]
-  --SortIncreasing BOOLEAN        true|false
+  --parameters TEXT   format: Pagination=Pagination,SortBy=UserSortField,SortI
+                      ncreasing=boolean
   --searchQuery TEXT
-  --help                          Show this message and exit.
+  --help              Show this message and exit.
 
 ```
 
 ##### panopto UserManagement UpdateContactInfo
 ```
-Usage: panopto.py UserManagement UpdateContactInfo [OPTIONS]
+Usage: panopto UserManagement UpdateContactInfo [OPTIONS]
 
 Options:
   --userId TEXT
@@ -1796,7 +1954,7 @@ Options:
 
 ##### panopto UserManagement UpdateUserBio
 ```
-Usage: panopto.py UserManagement UpdateUserBio [OPTIONS]
+Usage: panopto UserManagement UpdateUserBio [OPTIONS]
 
 Options:
   --userId TEXT
@@ -1807,7 +1965,7 @@ Options:
 
 ##### panopto UserManagement UpdatePassword
 ```
-Usage: panopto.py UserManagement UpdatePassword [OPTIONS]
+Usage: panopto UserManagement UpdatePassword [OPTIONS]
 
 Options:
   --userId TEXT
@@ -1818,7 +1976,7 @@ Options:
 
 ##### panopto UserManagement ResetPassword
 ```
-Usage: panopto.py UserManagement ResetPassword [OPTIONS]
+Usage: panopto UserManagement ResetPassword [OPTIONS]
 
 Options:
   --userId TEXT
@@ -1828,7 +1986,7 @@ Options:
 
 ##### panopto UserManagement UnlockAccount
 ```
-Usage: panopto.py UserManagement UnlockAccount [OPTIONS]
+Usage: panopto UserManagement UnlockAccount [OPTIONS]
 
 Options:
   --userId TEXT
@@ -1838,7 +1996,7 @@ Options:
 
 ##### panopto UserManagement SetSystemRole
 ```
-Usage: panopto.py UserManagement SetSystemRole [OPTIONS]
+Usage: panopto UserManagement SetSystemRole [OPTIONS]
 
 Options:
   --userId TEXT
@@ -1849,7 +2007,7 @@ Options:
 
 ##### panopto UserManagement DeleteUsers
 ```
-Usage: panopto.py UserManagement DeleteUsers [OPTIONS]
+Usage: panopto UserManagement DeleteUsers [OPTIONS]
 
 Options:
   --userIds TEXT  allows multiple
@@ -1859,7 +2017,7 @@ Options:
 
 ##### panopto UserManagement CreateInternalGroup
 ```
-Usage: panopto.py UserManagement CreateInternalGroup [OPTIONS]
+Usage: panopto UserManagement CreateInternalGroup [OPTIONS]
 
 Options:
   --groupName TEXT
@@ -1870,7 +2028,7 @@ Options:
 
 ##### panopto UserManagement GetGroupIsPublic
 ```
-Usage: panopto.py UserManagement GetGroupIsPublic [OPTIONS]
+Usage: panopto UserManagement GetGroupIsPublic [OPTIONS]
 
 Options:
   --groupId TEXT
@@ -1880,7 +2038,7 @@ Options:
 
 ##### panopto UserManagement SetGroupIsPublic
 ```
-Usage: panopto.py UserManagement SetGroupIsPublic [OPTIONS]
+Usage: panopto UserManagement SetGroupIsPublic [OPTIONS]
 
 Options:
   --groupId TEXT
@@ -1891,7 +2049,7 @@ Options:
 
 ##### panopto UserManagement CreateExternalGroup
 ```
-Usage: panopto.py UserManagement CreateExternalGroup [OPTIONS]
+Usage: panopto UserManagement CreateExternalGroup [OPTIONS]
 
 Options:
   --groupName TEXT
@@ -1904,8 +2062,7 @@ Options:
 
 ##### panopto UserManagement AddMembersToInternalGroup
 ```
-Usage: panopto.py UserManagement AddMembersToInternalGroup 
-           [OPTIONS]
+Usage: panopto UserManagement AddMembersToInternalGroup [OPTIONS]
 
 Options:
   --groupId TEXT
@@ -1916,7 +2073,7 @@ Options:
 
 ##### panopto UserManagement RemoveMembersFromInternalGroup
 ```
-Usage: panopto.py UserManagement RemoveMembersFromInternalGroup 
+Usage: panopto UserManagement RemoveMembersFromInternalGroup 
            [OPTIONS]
 
 Options:
@@ -1928,8 +2085,7 @@ Options:
 
 ##### panopto UserManagement AddMembersToExternalGroup
 ```
-Usage: panopto.py UserManagement AddMembersToExternalGroup 
-           [OPTIONS]
+Usage: panopto UserManagement AddMembersToExternalGroup [OPTIONS]
 
 Options:
   --externalProviderName TEXT
@@ -1941,7 +2097,7 @@ Options:
 
 ##### panopto UserManagement RemoveMembersFromExternalGroup
 ```
-Usage: panopto.py UserManagement RemoveMembersFromExternalGroup 
+Usage: panopto UserManagement RemoveMembersFromExternalGroup 
            [OPTIONS]
 
 Options:
@@ -1954,7 +2110,7 @@ Options:
 
 ##### panopto UserManagement SyncExternalUser
 ```
-Usage: panopto.py UserManagement SyncExternalUser [OPTIONS]
+Usage: panopto UserManagement SyncExternalUser [OPTIONS]
 
 Options:
   --firstName TEXT
@@ -1969,7 +2125,7 @@ Options:
 
 ##### panopto UserManagement DeleteGroup
 ```
-Usage: panopto.py UserManagement DeleteGroup [OPTIONS]
+Usage: panopto UserManagement DeleteGroup [OPTIONS]
 
 Options:
   --groupId TEXT
@@ -1979,7 +2135,7 @@ Options:
 
 ##### panopto UserManagement GetGroup
 ```
-Usage: panopto.py UserManagement GetGroup [OPTIONS]
+Usage: panopto UserManagement GetGroup [OPTIONS]
 
 Options:
   --groupId TEXT
@@ -1989,18 +2145,17 @@ Options:
 
 ##### panopto UserManagement ListGroups
 ```
-Usage: panopto.py UserManagement ListGroups [OPTIONS]
+Usage: panopto UserManagement ListGroups [OPTIONS]
 
 Options:
-  --MaxNumberResults INTEGER
-  --PageNumber INTEGER
-  --help                      Show this message and exit.
+  --pagination TEXT  format: MaxNumberResults=int,PageNumber=int
+  --help             Show this message and exit.
 
 ```
 
 ##### panopto UserManagement GetGroupsByName
 ```
-Usage: panopto.py UserManagement GetGroupsByName [OPTIONS]
+Usage: panopto UserManagement GetGroupsByName [OPTIONS]
 
 Options:
   --groupName TEXT
@@ -2010,7 +2165,7 @@ Options:
 
 ##### panopto UserManagement GetUsersInGroup
 ```
-Usage: panopto.py UserManagement GetUsersInGroup [OPTIONS]
+Usage: panopto UserManagement GetUsersInGroup [OPTIONS]
 
 Options:
   --groupId TEXT
@@ -2020,7 +2175,7 @@ Options:
 
 ##### panopto UserManagement SetUserHasLoggedIn
 ```
-Usage: panopto.py UserManagement SetUserHasLoggedIn [OPTIONS]
+Usage: panopto UserManagement SetUserHasLoggedIn [OPTIONS]
 
 Options:
   --userId TEXT
